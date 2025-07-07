@@ -1,0 +1,230 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    var reminderImportances = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "Low", Text = "Low" },
+        new SelectListItem { Value = "Normal", Text = "Normal" },
+        new SelectListItem { Value = "High", Text = "High" },
+        new SelectListItem { Value = "Critical", Text = "Critical" }
+    };
+}
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col">
+                <h2><i class="fas fa-bell text-primary"></i> Welcome, @User.Identity.Name!</h2>
+                <p class="text-muted">Create and manage your reminders with ease.</p>
+            </div>
+        </div>
+    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fas fa-plus-circle"></i> Create New Reminder</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" asp-action="CreateReminder" id="reminderForm">
+                <div class="mb-3">
+                    <label for="Name" class="form-label">
+                        <i class="fas fa-tag"></i> Reminder Name <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" id="Name" name="Name" required />
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">
+                        <i class="fas fa-bell"></i> Reminder Mode <span class="text-danger">*</span>
+                    </label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="IsEmailModeSelected" id="mode_Email" value="true" />
+                            <label class="form-check-label" for="mode_Email">
+                                <i class="fas fa-envelope"></i> Email
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="IsTextModeSelected" id="mode_TextMessage" value="true" />
+                            <label class="form-check-label" for="mode_TextMessage">
+                                <i class="fas fa-sms"></i> Text Message
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="IsCallModeSelected" id="mode_Call" value="true" />
+                            <label class="form-check-label" for="mode_Call">
+                                <i class="fas fa-phone"></i> Call
+                            </label>
+                        </div>
+                    </div>
+                    <div class="invalid-feedback d-block" id="modeError" style="display:none;">
+                        <i class="fas fa-exclamation-triangle"></i> Please select at least one mode.
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="Message" class="form-label">
+                        <i class="fas fa-comment"></i> Message
+                    </label>
+                    <textarea class="form-control" id="Message" name="Message" maxlength="250" rows="3" placeholder="Enter your reminder message..."></textarea>
+                    <div class="form-text"><span id="charCount">0</span>/250 characters</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">
+                        <i class="fas fa-calendar-alt"></i> Reminder Dates & Times <span class="text-danger">*</span>
+                    </label>
+                    <div id="dateTimeContainer">
+                        <div class="input-group mb-2">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="date" class="form-control" name="Schedules[0].Date" required />
+                            <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                            <input type="time" class="form-control" name="Schedules[0].Time" required />
+                            <button type="button" class="btn btn-danger removeDateTime" style="display:none;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="addDateTime">
+                        <i class="fas fa-plus"></i> Add Another Date/Time
+                    </button>
+                    <div class="invalid-feedback d-block" id="dateError" style="display:none;">
+                        <i class="fas fa-exclamation-triangle"></i> Please add at least one date and time.
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="ImportanceLevel" class="form-label">
+                        <i class="fas fa-exclamation-triangle"></i> Reminder Importance
+                    </label>
+                    @Html.DropDownList("ImportanceLevel", reminderImportances, "Select Importance", new { @class = "form-select", id = "ImportanceLevel" })
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Reminder
+                </button>
+            </form>
+        </div>
+    </div>
+    </div>
+}
+else
+{
+    <div class="container-fluid">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-md-8 col-lg-6 text-center">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body p-5">
+                        <i class="fas fa-bell text-primary" style="font-size: 4rem;"></i>
+                        <h2 class="mt-4 mb-3">Welcome to Reminder</h2>
+                        <p class="text-muted mb-4">Your personal reminder management system. Stay organized and never miss important tasks again.</p>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-user-plus text-success mb-3" style="font-size: 2rem;"></i>
+                                        <h5>New User?</h5>
+                                        <p class="text-muted">Create an account to start managing your reminders</p>
+                                        <a asp-controller="Account" asp-action="Register" class="btn btn-success">
+                                            <i class="fas fa-user-plus me-2"></i>Sign Up
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-sign-in-alt text-primary mb-3" style="font-size: 2rem;"></i>
+                                        <h5>Returning User?</h5>
+                                        <p class="text-muted">Sign in to access your reminders</p>
+                                        <a asp-controller="Account" asp-action="Login" class="btn btn-primary">
+                                            <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h6 class="text-muted mb-3">Features</h6>
+                            <div class="row text-center">
+                                <div class="col-md-4 mb-3">
+                                    <i class="fas fa-envelope text-info mb-2" style="font-size: 1.5rem;"></i>
+                                    <p class="small">Email Reminders</p>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <i class="fas fa-sms text-success mb-2" style="font-size: 1.5rem;"></i>
+                                    <p class="small">SMS Notifications</p>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <i class="fas fa-phone text-warning mb-2" style="font-size: 1.5rem;"></i>
+                                    <p class="small">Phone Calls</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<script>
+    // Character count for message
+    $('#Message').on('input', function () {
+        $('#charCount').text(this.value.length);
+    });
+
+    // Dynamic date/time pickers
+    let dateTimeIndex = 1;
+    $('#addDateTime').click(function () {
+        const html = `
+        <div class="input-group mb-2">
+            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+            <input type="date" class="form-control" name="Schedules[${dateTimeIndex}].Date" required />
+            <span class="input-group-text"><i class="fas fa-clock"></i></span>
+            <input type="time" class="form-control" name="Schedules[${dateTimeIndex}].Time" required />
+            <button type="button" class="btn btn-danger removeDateTime">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>`;
+        $('#dateTimeContainer').append(html);
+        dateTimeIndex++;
+    });
+
+    // Remove date/time picker
+    $('#dateTimeContainer').on('click', '.removeDateTime', function () {
+        $(this).closest('.input-group').remove();
+    });
+
+    // Client-side validation for at least one mode and one date
+    $('#reminderForm').on('submit', function (e) {
+        let valid = true;
+        // Validate at least one mode
+        if (
+            !$('input[name="IsEmailModeSelected"]').is(':checked') &&
+            !$('input[name="IsTextModeSelected"]').is(':checked') &&
+            !$('input[name="IsCallModeSelected"]').is(':checked')
+        ) {
+            $('#modeError').show();
+            valid = false;
+        } else {
+            $('#modeError').hide();
+        }
+        // Validate at least one date/time group
+        if ($('#dateTimeContainer .input-group').length === 0) {
+            $('#dateError').show();
+            valid = false;
+        } else {
+            $('#dateError').hide();
+        }
+        if (!valid) e.preventDefault();
+    });
+</script>

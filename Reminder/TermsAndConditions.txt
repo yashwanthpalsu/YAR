@@ -1,0 +1,47 @@
+1. Introduction
+Welcome to [Your Application Name] (“we,” “us,” or “our”). By creating an account and using our reminder application (“Service”), you agree to these Terms and Conditions (“Terms”). Please read them carefully before using our Service.
+
+2. Eligibility
+You must be at least 18 years old or have the legal capacity to enter into these Terms in your jurisdiction. By using our Service, you represent and warrant that you meet these requirements.
+
+3. Types of Communications
+As part of our Service, we may send you reminders and notifications via the following channels, based on your preferences:
+
+Email
+SMS/Text Messages
+Phone Calls (including automated calls)
+WhatsApp Messages
+
+
+4. Consent to Receive Communications
+By registering for our Service and providing your contact information, you expressly consent to receive reminders and notifications through the communication channels you select (Email, SMS, Phone Call, WhatsApp). These communications may be sent using automated technology.
+You may choose which channels to receive communications from during account creation or in your account settings.
+
+5. Purpose of Communications
+The sole purpose of these communications is to deliver reminders and notifications as scheduled by you within the application. We do not use your contact information for marketing or unrelated purposes.
+
+6. Opt-In and Opt-Out
+You may manage your communication preferences at any time by updating your account settings or contacting our support team at [support email].
+You may withdraw your consent to receive communications through any channel at any time. Upon withdrawal, you may no longer receive reminders through that channel.
+
+7. Data Privacy and Security
+Your privacy is important to us. Your contact information and personal data will be handled in accordance with our Privacy Policy. We implement reasonable security measures to protect your information from unauthorized access, disclosure, or misuse.
+
+8. User Responsibilities
+You are responsible for providing accurate and up-to-date contact information. We are not liable for missed reminders or notifications due to incorrect or outdated contact details provided by you.
+
+9. Compliance with Laws
+We comply with all applicable laws and regulations regarding electronic communications, including but not limited to the CAN-SPAM Act, Telephone Consumer Protection Act (TCPA), and General Data Protection Regulation (GDPR) where applicable.
+By using our Service, you acknowledge and agree that you are not violating any laws or regulations of your jurisdiction by receiving communications from us.
+
+10. Limitation of Liability
+To the maximum extent permitted by law, we are not liable for any damages arising from your use of the Service, including but not limited to missed reminders, communication failures, or unauthorized access to your data.
+
+11. Changes to Terms
+We reserve the right to update or modify these Terms at any time. We will notify you of any material changes via email or through the Service. Continued use of the Service after such changes constitutes your acceptance of the new Terms.
+
+12. Contact Us
+If you have any questions or concerns about these Terms or your consent, please contact us at [support email].
+
+13. Acceptance
+By creating an account, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions, including our policies regarding electronic communications.

@@ -1,0 +1,145 @@
+@model Reminder.Models.DBEntities.ProfileDto
+@{
+    ViewData["Title"] = "Profile";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="mb-0">
+                        <i class="fas fa-user-circle me-2"></i>User Profile
+                    </h3>
+                    <p class="mb-0 mt-2">Manage your account information</p>
+                </div>
+                <div class="card-body p-4">
+                    @if (ViewData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>Success!</strong> @ViewData["SuccessMessage"]
+                        </div>
+                    }
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Error!</strong> Please check the errors below.
+                        </div>
+                    }
+
+                    <form asp-action="Profile" asp-controller="Account" method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FirstName" class="form-label">
+                                    <i class="fas fa-user me-2"></i>First Name
+                                </label>
+                                <input asp-for="FirstName" type="text" class="form-control" required>
+                                <span asp-validation-for="FirstName" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LastName" class="form-label">
+                                    <i class="fas fa-user me-2"></i>Last Name
+                                </label>
+                                <input asp-for="LastName" type="text" class="form-control" required>
+                                <span asp-validation-for="LastName" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">
+                                <i class="fas fa-envelope me-2"></i>Email Address
+                            </label>
+                            <input asp-for="Email" type="email" class="form-control" readonly>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>Email cannot be changed
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PhoneNumber" class="form-label">
+                                <i class="fas fa-phone me-2"></i>Phone Number
+                            </label>
+                            <input asp-for="PhoneNumber" type="tel" class="form-control" required>
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label">
+                                <i class="fas fa-map-marker-alt me-2"></i>Address
+                            </label>
+                            <textarea asp-for="Address" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Address" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="ChangePassword" class="btn btn-warning me-md-2">
+                                <i class="fas fa-key me-2"></i>Change Password
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Update Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Account Status Section -->
+            <div class="card shadow-lg border-0 mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>Account Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-envelope me-3 text-@(Model.EmailConfirmed ? "success" : "danger")"></i>
+                                <div>
+                                    <strong>Email Verification:</strong>
+                                    <span class="badge bg-@(Model.EmailConfirmed ? "success" : "danger") ms-2">
+                                        @(Model.EmailConfirmed ? "Verified" : "Not Verified")
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-phone me-3 text-@(Model.PhoneNumberConfirmed ? "success" : "danger")"></i>
+                                <div>
+                                    <strong>Phone Verification:</strong>
+                                    <span class="badge bg-@(Model.PhoneNumberConfirmed ? "success" : "danger") ms-2">
+                                        @(Model.PhoneNumberConfirmed ? "Verified" : "Not Verified")
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @if (!Model.EmailConfirmed)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Email not verified!</strong> 
+                            <a asp-action="ResendEmailVerification" class="alert-link">Click here to resend verification email</a>
+                        </div>
+                    }
+                    
+                    @if (!Model.PhoneNumberConfirmed)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Phone not verified!</strong> 
+                            <a asp-action="ResendPhoneVerification" class="alert-link">Click here to resend verification SMS</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
