@@ -39,14 +39,24 @@ try
     builder.Services.AddControllersWithViews();
 
     // Configure Entity Framework
-    //builder.Services.AddDbContext<SchedulerDbContext>(options =>
-    //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-    builder.Services.AddDbContext<SchedulerDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresqlConnection")));
+    var connectionString = builder.Configuration.GetConnectionString("PostgresqlConnection");
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        // Fallback to environment variables for production
+        var host = Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? "localhost";
+        var port = Environment.GetEnvironmentVariable("POSTGRES_PORT") ?? "5432";
+        var database = Environment.GetEnvironmentVariable("POSTGRES_DB") ?? "reminder";
+        var username = Environment.GetEnvironmentVariable("POSTGRES_USER") ?? "postgres";
+        var password = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? "root";
+        
+        connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};";
+    }
+    
+    builder.Services.AddDbContext<SchedulerDbContext>(options => options.UseNpgsql(connectionString));
 
     //Configure Hangfire
     builder.Services.AddHangfireServer();
-    builder.Services.AddHangfire(options => options.UsePostgreSqlStorage(builder.Configuration.GetConnectionString("PostgresqlConnection")));
+    builder.Services.AddHangfire(options => options.UsePostgreSqlStorage(connectionString));
 
     // Configure Identity
     builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -101,6 +111,22 @@ try
     builder.Services.AddScoped<ISmsService, SmsService>();
 
     var app = builder.Build();
+
+    // Apply database migrations
+    using (var scope = app.Services.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<SchedulerDbContext>();
+        try
+        {
+            context.Database.Migrate();
+            Log.Information("Database migrations applied successfully");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "An error occurred while applying database migrations");
+            throw;
+        }
+    }
 
     // Configure the HTTP request pipeline.
     if (!app.Environment.IsDevelopment())
