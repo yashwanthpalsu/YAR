@@ -1,3 +1,4 @@
+using Hangfire;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
@@ -89,7 +90,6 @@ namespace Reminder.Services
                     <p>Thank you for using Reminder App!</p>
                     <br>
                     <p>Best regards,<br>Reminder App Team</p>";
-
                 return await SendEmailAsync(email, subject, body);
             }
             catch (Exception ex)
@@ -167,5 +167,12 @@ namespace Reminder.Services
                 return false;
             }
         }
+
+        // Optionally, implement WhatsApp notification via Twilio
+        // public async Task<bool> SendWhatsAppReminderAsync(string phoneNumber, string reminderMessage, DateTime reminderTime)
+        // {
+        //     // Implement WhatsApp sending logic here
+        //     return true;
+        // }
     }
 } 

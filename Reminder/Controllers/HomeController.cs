@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +37,7 @@ public class HomeController : Controller
         }
 
         ViewData["UserName"] = currentUser.FullName;
+        BackgroundJob.Enqueue(() => Console.WriteLine("fire and forget"));
         return View();
     }
 
