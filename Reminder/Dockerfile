@@ -8,18 +8,18 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy the project file and restore dependencies
-COPY ["Reminder.csproj", "./"]
-RUN dotnet restore "Reminder.csproj"
+COPY Reminder/Reminder.csproj ./Reminder/
+RUN dotnet restore ./Reminder/Reminder.csproj
 
 # Copy the rest of the source code
-COPY . .
+COPY Reminder/. ./Reminder/
 
 # Build the application
-RUN dotnet build "Reminder.csproj" -c Release -o /app/build
+RUN dotnet build ./Reminder/Reminder.csproj -c Release -o /app/build
 
 # Publish the application
 FROM build AS publish
-RUN dotnet publish "Reminder.csproj" -c Release -o /app/publish
+RUN dotnet publish ./Reminder/Reminder.csproj -c Release -o /app/publish
 
 # Build the final runtime image
 FROM base AS final
