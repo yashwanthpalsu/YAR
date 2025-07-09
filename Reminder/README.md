@@ -147,9 +147,21 @@ Reminder/
 
 ## Deployment
 
-This application can be deployed to:
+### Render Deployment (Recommended)
+
+This application is configured for easy deployment on Render. See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
+
+**Quick Start:**
+1. Push your code to a Git repository
+2. Connect your repository to Render
+3. Render will automatically detect the `render.yaml` configuration
+4. Set up your environment variables in the Render dashboard
+5. Deploy!
+
+### Other Platforms
+
+This application can also be deployed to:
 - Azure App Service
-- Render.com
 - Railway.app
 - Any platform supporting .NET Core
 

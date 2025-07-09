@@ -5,6 +5,9 @@ using Reminder.Models.DBEntities;
 using Reminder.Services;
 using Reminder.Middleware;
 using Serilog;
+using Hangfire;
+using Hangfire.PostgreSql;
+using Hangfire.Dashboard;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,8 +39,24 @@ try
     builder.Services.AddControllersWithViews();
 
     // Configure Entity Framework
-    builder.Services.AddDbContext<SchedulerDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    var connectionString = builder.Configuration.GetConnectionString("PostgresqlConnection");
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        // Fallback to environment variables for production
+        var host = Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? "localhost";
+        var port = Environment.GetEnvironmentVariable("POSTGRES_PORT") ?? "5432";
+        var database = Environment.GetEnvironmentVariable("POSTGRES_DB") ?? "reminder";
+        var username = Environment.GetEnvironmentVariable("POSTGRES_USER") ?? "postgres";
+        var password = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? "root";
+        
+        connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};";
+    }
+    
+    builder.Services.AddDbContext<SchedulerDbContext>(options => options.UseNpgsql(connectionString));
+
+    //Configure Hangfire
+    builder.Services.AddHangfireServer();
+    builder.Services.AddHangfire(options => options.UsePostgreSqlStorage(connectionString));
 
     // Configure Identity
     builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -78,12 +97,36 @@ try
 
     // Register services
     builder.Services.AddSingleton<ILoggingService>(provider => new LoggingService(Log.Logger));
-    builder.Services.AddScoped<IReminderService, ReminderService>();
+    builder.Services.AddScoped<IReminderService, ReminderService>(provider =>
+        new ReminderService(
+            provider.GetRequiredService<SchedulerDbContext>(),
+            provider.GetRequiredService<ILoggingService>(),
+            provider.GetRequiredService<IEmailService>(),
+            provider.GetRequiredService<ISmsService>(),
+            provider.GetRequiredService<UserManager<ApplicationUser>>()
+        )
+    );
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<IEmailService, EmailService>();
     builder.Services.AddScoped<ISmsService, SmsService>();
 
     var app = builder.Build();
+
+    // Apply database migrations
+    using (var scope = app.Services.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<SchedulerDbContext>();
+        try
+        {
+            context.Database.Migrate();
+            Log.Information("Database migrations applied successfully");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "An error occurred while applying database migrations");
+            throw;
+        }
+    }
 
     // Configure the HTTP request pipeline.
     if (!app.Environment.IsDevelopment())
@@ -105,6 +148,12 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
 
+    //Add Hangfire
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions {
+        Authorization = new[] { new HangfireDashboardAuthFilter() },
+        DashboardTitle = "Reminder Jobs Dashboard"
+    });
+
     app.MapControllerRoute(
         name: "default",
         pattern: "{controller=Home}/{action=Index}/{id?}");
@@ -119,4 +168,14 @@ catch (Exception ex)
 finally
 {
     Log.CloseAndFlush();
+}
+
+// Custom Hangfire dashboard authorization: only allow authenticated users
+public class HangfireDashboardAuthFilter : IDashboardAuthorizationFilter
+{
+    public bool Authorize(DashboardContext context)
+    {
+        var httpContext = context.GetHttpContext();
+        return httpContext.User.Identity?.IsAuthenticated == true;
+    }
 }

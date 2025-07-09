@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -39,18 +40,50 @@ public class HomeController : Controller
         return View();
     }
 
-    public bool TestDatabaseConnection()
+    [AllowAnonymous]
+    [HttpGet("/health")]
+    public async Task<IActionResult> Health()
     {
-        var connectionString = _configuration.GetConnectionString("DefaultConnection");
-        var optionsBuilder = new DbContextOptionsBuilder<SchedulerDbContext>();
-        optionsBuilder.UseSqlServer(connectionString);
+        var healthStatus = new
+        {
+            Status = "Healthy",
+            Timestamp = DateTime.UtcNow,
+            Database = await TestDatabaseConnectionAsync(),
+            Environment = _configuration["ASPNETCORE_ENVIRONMENT"] ?? "Unknown"
+        };
 
+        if (!healthStatus.Database)
+        {
+            return StatusCode(503, new { Status = "Unhealthy", healthStatus.Database, healthStatus.Environment });
+        }
+
+        return Ok(healthStatus);
+    }
+
+    private async Task<bool> TestDatabaseConnectionAsync()
+    {
         try
         {
+            var connectionString = _configuration.GetConnectionString("PostgresqlConnection");
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                // Fallback to environment variables
+                var host = Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? "localhost";
+                var port = Environment.GetEnvironmentVariable("POSTGRES_PORT") ?? "5432";
+                var database = Environment.GetEnvironmentVariable("POSTGRES_DB") ?? "reminder";
+                var username = Environment.GetEnvironmentVariable("POSTGRES_USER") ?? "postgres";
+                var password = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? "";
+                
+                connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};";
+            }
+
+            var optionsBuilder = new DbContextOptionsBuilder<SchedulerDbContext>();
+            optionsBuilder.UseNpgsql(connectionString);
+
             using (var context = new SchedulerDbContext(optionsBuilder.Options))
             {
-                context.Database.OpenConnection();
-                context.Database.CloseConnection();
+                await context.Database.OpenConnectionAsync();
+                await context.Database.CloseConnectionAsync();
             }
             return true;
         }

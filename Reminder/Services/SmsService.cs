@@ -85,5 +85,12 @@ namespace Reminder.Services
                 return false;
             }
         }
+
+        // Optionally, implement WhatsApp notification via Twilio
+        // public async Task<bool> SendWhatsAppReminderAsync(string phoneNumber, string reminderMessage, DateTime reminderTime)
+        // {
+        //     // Implement WhatsApp sending logic here
+        //     return true;
+        // }
     }
 } 
