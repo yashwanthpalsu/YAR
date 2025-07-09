@@ -1,8 +1,9 @@
 services:
   - type: web
     name: reminder-app
-    env: dotnet
     plan: starter
+    runtime: docker
+    dockerContext: .\Dockerfile
     buildCommand: dotnet build --configuration Release
     startCommand: chmod +x startup.sh && ./startup.sh
     envVars:
@@ -10,28 +11,28 @@ services:
         value: Production
       - key: ASPNETCORE_URLS
         value: http://0.0.0.0:$PORT
-      - key: POSTGRES_HOST
-        fromDatabase:
-          name: reminder-db
-          property: host
-      - key: POSTGRES_PORT
-        fromDatabase:
-          name: reminder-db
-          property: port
-      - key: POSTGRES_DB
-        fromDatabase:
-          name: reminder-db
-          property: database
-      - key: POSTGRES_USER
-        fromDatabase:
-          name: reminder-db
-          property: username
-      - key: POSTGRES_PASSWORD
-        fromDatabase:
-          name: reminder-db
-          property: password
+      # - key: POSTGRES_HOST
+      #   fromDatabase:
+      #     name: reminder-db
+      #     property: host
+      # - key: POSTGRES_PORT
+      #   fromDatabase:
+      #     name: reminder-db
+      #     property: port
+      # - key: POSTGRES_DB
+      #   fromDatabase:
+      #     name: reminder-db
+      #     property: database
+      # - key: POSTGRES_USER
+      #   fromDatabase:
+      #     name: reminder-db
+      #     property: username
+      # - key: POSTGRES_PASSWORD
+      #   fromDatabase:
+      #     name: reminder-db
+      #     property: password
       - key: APP_URL
-        value: https://reminder-app.onrender.com
+        value: https://yar-reminder.onrender.com
       - key: SMTP_SERVER
         sync: false
       - key: SMTP_PORT
@@ -53,4 +54,4 @@ databases:
   - name: reminder-db
     databaseName: reminder
     user: reminder_user
-    plan: starter 
+    plan: free
