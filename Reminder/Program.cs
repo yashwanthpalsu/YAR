@@ -42,13 +42,29 @@ try
     var connectionString = builder.Configuration.GetConnectionString("PostgresqlConnection");
     if (string.IsNullOrEmpty(connectionString))
     {
-        // Fallback to environment variables for production
-        var host = Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? "localhost";
-        var port = Environment.GetEnvironmentVariable("POSTGRES_PORT") ?? "5432";
-        var database = Environment.GetEnvironmentVariable("POSTGRES_DB") ?? "reminder";
-        var username = Environment.GetEnvironmentVariable("POSTGRES_USER") ?? "postgres";
-        var password = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? "root";
-        
+        var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+        var host = Environment.GetEnvironmentVariable("POSTGRES_HOST");
+        var port = Environment.GetEnvironmentVariable("POSTGRES_PORT");
+        var database = Environment.GetEnvironmentVariable("POSTGRES_DB");
+        var username = Environment.GetEnvironmentVariable("POSTGRES_USER");
+        var password = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
+
+        if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(port) || string.IsNullOrEmpty(database) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+        {
+            if (env == "Development")
+            {
+                // Fallback to localhost for local dev
+                host = host ?? "localhost";
+                port = port ?? "5432";
+                database = database ?? "reminder";
+                username = username ?? "postgres";
+                password = password ?? "root";
+            }
+            else
+            {
+                throw new Exception("One or more required Postgres environment variables are missing. Please ensure POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB, POSTGRES_USER, and POSTGRES_PASSWORD are set by your deployment platform.");
+            }
+        }
         connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};";
     }
     
