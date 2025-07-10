@@ -13,5 +13,25 @@ namespace Reminder.Services
         /// Gets all reminders for a specific user.
         /// </summary>
         Task<IEnumerable<ReminderViewModel>> GetUserRemindersAsync(string userId);
+        
+        /// <summary>
+        /// Gets a specific reminder by ID.
+        /// </summary>
+        Task<ReminderViewModel?> GetReminderByIdAsync(int reminderId);
+        
+        /// <summary>
+        /// Updates an existing reminder.
+        /// </summary>
+        Task<bool> UpdateReminderAsync(ReminderViewModel reminder);
+        
+        /// <summary>
+        /// Deletes a reminder by ID for a specific user.
+        /// </summary>
+        Task<bool> DeleteReminderAsync(int reminderId, string userId);
+        
+        /// <summary>
+        /// Deletes a specific schedule and its associated Hangfire jobs.
+        /// </summary>
+        Task<bool> DeleteScheduleAsync(int scheduleId, string userId);
     }
 }

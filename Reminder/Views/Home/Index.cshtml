@@ -14,8 +14,17 @@
     <div class="container mt-4">
         <div class="row mb-4">
             <div class="col">
-                <h2><i class="fas fa-bell text-primary"></i> Welcome, @User.Identity.Name!</h2>
-                <p class="text-muted">Create and manage your reminders with ease.</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2><i class="fas fa-bell text-primary"></i> Welcome, @User.Identity.Name!</h2>
+                        <p class="text-muted">Create and manage your reminders with ease.</p>
+                    </div>
+                    <div>
+                        <a asp-action="ManageReminders" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-2"></i>Manage Reminders
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
         

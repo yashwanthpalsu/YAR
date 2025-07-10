@@ -93,11 +93,12 @@
                         </div>
 
                         <div class="mb-3 form-check">
-                            <input asp-for="AgreeToTerms" type="checkbox" class="form-check-input" id="agreeTerms">
+                            <input asp-for="AgreeToTerms" type="checkbox" class="form-check-input" id="agreeTerms" required>
                             <label class="form-check-label" for="agreeTerms">
                                 <i class="fas fa-check-square me-1"></i>I agree to the 
-                                <a href="#" class="text-decoration-none">Terms of Service</a> and 
-                                <a href="#" class="text-decoration-none">Privacy Policy</a>
+                                <a asp-action="TermsAndConditions" target="_blank" class="text-decoration-none fw-bold">Terms and Conditions</a> 
+                                and <a asp-action="PrivacyPolicy" target="_blank" class="text-decoration-none fw-bold">Privacy Policy</a>
+                                and acknowledge that I have read and understood them
                             </label>
                             <span asp-validation-for="AgreeToTerms" class="text-danger small d-block"></span>
                         </div>
@@ -153,6 +154,27 @@
                 passwordInput.type = 'password';
                 icon.classList.remove('fa-eye-slash');
                 icon.classList.add('fa-eye');
+            }
+        });
+
+        // Form validation for terms and conditions
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const agreeTerms = document.getElementById('agreeTerms');
+            if (!agreeTerms.checked) {
+                e.preventDefault();
+                alert('You must agree to the Terms and Conditions to continue.');
+                agreeTerms.focus();
+                return false;
+            }
+        });
+
+        // Add visual feedback for terms checkbox
+        document.getElementById('agreeTerms').addEventListener('change', function() {
+            const label = this.nextElementSibling;
+            if (this.checked) {
+                label.style.color = '#198754'; // Bootstrap success color
+            } else {
+                label.style.color = ''; // Reset to default
             }
         });
     </script>

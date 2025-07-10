@@ -1,0 +1,176 @@
+@model dynamic
+@{
+    ViewData["Title"] = "System Status";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-cog text-info me-2"></i>System Status</h2>
+                <div>
+                    <a asp-action="Index" class="btn btn-secondary me-2">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                    <a asp-action="ManageUsers" class="btn btn-primary">
+                        <i class="fas fa-users me-2"></i>Manage Users
+                    </a>
+                </div>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- System Health Status -->
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <div class="card shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-database me-2"></i>Database Status</h5>
+                            <span class="badge @(Model.DatabaseConnected ? "bg-success" : "bg-danger")">
+                                @(Model.DatabaseConnected ? "Connected" : "Disconnected")
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">
+                                @if (Model.DatabaseConnected)
+                                {
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <span>Database connection is working properly.</span>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                                    <span>Database connection failed. Check your connection string.</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-envelope me-2"></i>Email Configuration</h5>
+                            <span class="badge @(Model.EmailConfigured ? "bg-success" : "bg-warning")">
+                                @(Model.EmailConfigured ? "Configured" : "Not Configured")
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">
+                                @if (Model.EmailConfigured)
+                                {
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <span>Email service is properly configured.</span>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                                    <span>Email configuration is missing. Set SMTP_USERNAME and SMTP_PASSWORD.</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Environment Information -->
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Environment Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Environment:</strong>
+                                    <span class="badge bg-secondary">@Model.Environment</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>App URL:</strong>
+                                    <span class="text-muted">@Model.AppUrl</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-clock me-2"></i>System Time</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Server Time:</strong>
+                                    <span class="text-muted">@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>UTC Time:</strong>
+                                    <span class="text-muted">@DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Jobs Dashboard</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Monitor background jobs and scheduled tasks.</p>
+                            <a href="/hangfire" target="_blank" class="btn btn-primary">
+                                <i class="fas fa-external-link-alt me-2"></i>Open Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-users me-2"></i>User Management</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Manage user accounts and permissions.</p>
+                            <a asp-action="ManageUsers" class="btn btn-info">
+                                <i class="fas fa-users me-2"></i>Manage Users
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0"><i class="fas fa-home me-2"></i>Main App</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Return to the main application.</p>
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-home me-2"></i>Go to App
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

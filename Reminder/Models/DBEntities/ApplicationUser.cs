@@ -19,6 +19,8 @@ namespace Reminder.Models.DBEntities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLoginAt { get; set; }
         public bool IsActive { get; set; } = true;
+        // Admin status is now managed through ASP.NET Core Identity roles
+        // Use UserManager.IsInRoleAsync(user, "Admin") to check admin status
 
         // Custom verification tokens (separate from Identity's built-in ones)
         public string? EmailVerificationToken { get; set; }
