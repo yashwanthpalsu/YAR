@@ -94,5 +94,24 @@ namespace Reminder.Services
                 return false;
             }
         }
+
+        public async Task<IEnumerable<ReminderViewModel>> GetUserRemindersAsync(string userId)
+        {
+            try
+            {
+                var reminders = await _context.Reminders
+                    .Where(r => r.UserId == userId)
+                    .Include(r => r.Schedules)
+                    .OrderByDescending(r => r.ReminderId)
+                    .ToListAsync();
+
+                return reminders;
+            }
+            catch (Exception ex)
+            {
+                _loggingService.LogError(ex, "Error retrieving reminders for user {UserId}", userId);
+                return Enumerable.Empty<ReminderViewModel>();
+            }
+        }
     }
 }

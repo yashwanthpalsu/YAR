@@ -11,30 +11,30 @@ services:
         value: Production
       - key: ASPNETCORE_URLS
         value: http://0.0.0.0:$PORT
-      # - key: POSTGRES_HOST
-      #   fromDatabase:
-      #     name: reminder-db
-      #     property: host
-      # - key: POSTGRES_PORT
-      #   fromDatabase:
-      #     name: reminder-db
-      #     property: port
-      # - key: POSTGRES_DB
-      #   fromDatabase:
-      #     name: reminder-db
-      #     property: database
-      # - key: POSTGRES_USER
-      #   fromDatabase:
-      #     name: reminder-db
-      #     property: username
-      # - key: POSTGRES_PASSWORD
-      #   fromDatabase:
-      #     name: reminder-db
-      #     property: password
+      - key: POSTGRES_HOST
+        fromDatabase:
+          name: reminder-db
+          property: host
+      - key: POSTGRES_PORT
+        fromDatabase:
+          name: reminder-db
+          property: port
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: reminder-db
+          property: database
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: reminder-db
+          property: username
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: reminder-db
+          property: password
       - key: APP_URL
         value: https://yar-reminder.onrender.com
       - key: SMTP_SERVER
-        sync: false
+        value: smtp.gmail.com
       - key: SMTP_PORT
         value: "587"
       - key: SMTP_USERNAME

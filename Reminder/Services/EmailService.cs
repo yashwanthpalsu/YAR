@@ -141,18 +141,33 @@ namespace Reminder.Services
 
                 using var smtp = new SmtpClient();
                 
-                var port = int.Parse(_configuration["Email:Port"]);
+                // Get SMTP configuration with better error handling
+                var smtpServer = _configuration["Email:SmtpServer"];
+                var portString = _configuration["Email:Port"];
+                var username = _configuration["Email:Username"];
+                var password = _configuration["Email:Password"];
+               
+                if (string.IsNullOrEmpty(portString))
+                {
+                    throw new InvalidOperationException("SMTP Port configuration is missing or empty");
+                }
+                
+                if (!int.TryParse(portString, out var port))
+                {
+                    throw new InvalidOperationException($"SMTP Port '{portString}' is not a valid integer");
+                }
+                
                 var secureSocketOptions = port == 465 ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
                 
                 await smtp.ConnectAsync(
-                    _configuration["Email:SmtpServer"],
+                    smtpServer,
                     port,
                     secureSocketOptions
                 );
 
                 await smtp.AuthenticateAsync(
-                    _configuration["Email:Username"],
-                    _configuration["Email:Password"]
+                    username,
+                    password
                 );
 
                 await smtp.SendAsync(email);

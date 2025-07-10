@@ -111,6 +111,37 @@ try
         options.ExpireTimeSpan = TimeSpan.FromDays(30);
     });
 
+    // Configure environment variables for Email and Twilio settings
+    var smtpServer = Environment.GetEnvironmentVariable("SMTP_SERVER") ?? builder.Configuration["Email:SmtpServer"];
+    var smtpPort = Environment.GetEnvironmentVariable("SMTP_PORT") ?? builder.Configuration["Email:Port"];
+    var smtpUsername = Environment.GetEnvironmentVariable("SMTP_USERNAME") ?? builder.Configuration["Email:Username"];
+    var smtpPassword = Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? builder.Configuration["Email:Password"];
+    var smtpFrom = Environment.GetEnvironmentVariable("SMTP_FROM") ?? builder.Configuration["Email:From"];
+    
+    var twilioAccountSid = Environment.GetEnvironmentVariable("TWILIO_ACCOUNT_SID") ?? builder.Configuration["Twilio:AccountSid"];
+    var twilioAuthToken = Environment.GetEnvironmentVariable("TWILIO_AUTH_TOKEN") ?? builder.Configuration["Twilio:AuthToken"];
+    var twilioFromPhone = Environment.GetEnvironmentVariable("TWILIO_FROM_PHONE") ?? builder.Configuration["Twilio:FromPhoneNumber"];
+    
+    var appUrl = Environment.GetEnvironmentVariable("APP_URL") ?? builder.Configuration["AppUrl"];
+    
+    // Set the configuration values
+    builder.Configuration["Email:SmtpServer"] = smtpServer;
+    builder.Configuration["Email:Port"] = smtpPort;
+    builder.Configuration["Email:Username"] = smtpUsername;
+    builder.Configuration["Email:Password"] = smtpPassword;
+    builder.Configuration["Email:From"] = smtpFrom;
+    
+    builder.Configuration["Twilio:AccountSid"] = twilioAccountSid;
+    builder.Configuration["Twilio:AuthToken"] = twilioAuthToken;
+    builder.Configuration["Twilio:FromPhoneNumber"] = twilioFromPhone;
+    
+    builder.Configuration["AppUrl"] = appUrl;
+    
+    // Log configuration for debugging (without sensitive data)
+    Log.Information("Email Configuration - Server: {SmtpServer}, Port: {Port}, Username: {Username}, From: {From}", 
+        smtpServer, smtpPort, smtpUsername, smtpFrom);
+    Log.Information("App URL: {AppUrl}", appUrl);
+
     // Register services
     builder.Services.AddSingleton<ILoggingService>(provider => new LoggingService(Log.Logger));
     builder.Services.AddScoped<IReminderService, ReminderService>(provider =>

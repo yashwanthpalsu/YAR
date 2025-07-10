@@ -8,5 +8,10 @@ namespace Reminder.Services
         /// Creates a reminder and schedules notification jobs (email, SMS, WhatsApp) for each schedule.
         /// </summary>
         Task<bool> CreateReminderAsync(ReminderViewModel reminder);
+        
+        /// <summary>
+        /// Gets all reminders for a specific user.
+        /// </summary>
+        Task<IEnumerable<ReminderViewModel>> GetUserRemindersAsync(string userId);
     }
 }
