@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Reminder.Models;
@@ -13,31 +14,52 @@ namespace Reminder.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-
     private readonly IConfiguration _configuration;
-
     private readonly IReminderService _reminderService;
-
     private readonly IAuthService _authService;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public HomeController(ILogger<HomeController> logger, IConfiguration configuration, IReminderService reminderService, IAuthService authService)
+    public HomeController(ILogger<HomeController> logger, IConfiguration configuration, IReminderService reminderService, IAuthService authService, UserManager<ApplicationUser> userManager)
     {
         _logger = logger;
         _configuration = configuration;
         _reminderService = reminderService;
         _authService = authService;
+        _userManager = userManager;
     }
 
     public async Task<IActionResult> Index()
     {
-        var currentUser = await _authService.GetCurrentUserAsync();
-        if (currentUser == null)
+        try
         {
-            return RedirectToAction("Login", "Account");
-        }
+            var reminders = new List<ReminderViewModel>();
+            
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user != null)
+                {
+                    reminders = (await _reminderService.GetUserRemindersAsync(user.Id)).ToList();
+                }
+            }
 
-        ViewData["UserName"] = currentUser.FullName;
-        return View();
+            // Add system status for debugging
+            ViewBag.SystemStatus = new
+            {
+                DatabaseConnected = await TestDatabaseConnectionAsync(),
+                EmailConfigured = !string.IsNullOrEmpty(_configuration["Email:SmtpServer"]),
+                Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown",
+                AppUrl = _configuration["AppUrl"]
+            };
+
+            ViewBag.Reminders = reminders;
+            return View();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading home page");
+            return View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
     }
 
     [AllowAnonymous]
