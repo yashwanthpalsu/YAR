@@ -111,6 +111,40 @@ namespace Reminder.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
+        public IActionResult TermsAndConditions()
+        {
+            try
+            {
+                var termsPath = Path.Combine(Directory.GetCurrentDirectory(), "TermsAndConditions.txt");
+                if (System.IO.File.Exists(termsPath))
+                {
+                    var termsContent = System.IO.File.ReadAllText(termsPath);
+                    ViewBag.TermsContent = termsContent;
+                }
+                else
+                {
+                    ViewBag.TermsContent = "Terms and Conditions not available at this time.";
+                }
+                
+                return View();
+            }
+            catch (Exception ex)
+            {
+                _loggingService.LogError(ex, "Error loading Terms and Conditions");
+                ViewBag.TermsContent = "Terms and Conditions not available at this time.";
+                return View();
+            }
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult PrivacyPolicy()
+        {
+            return View();
+        }
+
+        [HttpGet]
         public async Task<IActionResult> VerifyEmail(string email, string token)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))

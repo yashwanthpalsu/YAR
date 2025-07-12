@@ -17,5 +17,8 @@ namespace Reminder.Models.DBEntities
         public int ReminderId { get; set; }
         
         public ReminderViewModel? Reminder { get; set; }
+        public string? EmailJobId { get; set; }
+        public string? SmsJobId { get; set; }
+        public string? CallJobId { get; set; }
     }
 }

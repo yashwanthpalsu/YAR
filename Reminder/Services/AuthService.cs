@@ -12,6 +12,7 @@ namespace Reminder.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmailService _emailService;
         private readonly ISmsService _smsService;
         private readonly ILoggingService _loggingService;
@@ -20,6 +21,7 @@ namespace Reminder.Services
         public AuthService(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
+            RoleManager<IdentityRole> roleManager,
             IEmailService emailService,
             ISmsService smsService,
             ILoggingService loggingService,
@@ -37,6 +39,12 @@ namespace Reminder.Services
         {
             try
             {
+                // Validate terms acceptance
+                if (!request.AcceptTerms)
+                {
+                    return (false, "You must accept the Terms and Conditions to register.", null);
+                }
+
                 // Check if user already exists
                 var existingUser = await _userManager.FindByEmailAsync(request.Email);
                 if (existingUser != null)
@@ -123,6 +131,15 @@ namespace Reminder.Services
                     // Update last login time
                     user.LastLoginAt = DateTime.UtcNow;
                     await _userManager.UpdateAsync(user);
+
+                    // Ensure Admin role exists
+                    if (!await _roleManager.RoleExistsAsync("Admin"))
+                    {
+                        await _roleManager.CreateAsync(new Microsoft.AspNetCore.Identity.IdentityRole("Admin"));
+                    }
+
+                    // Note: Admin role assignment is now handled by the AdminService
+                    // Users can be assigned admin role through the admin interface
 
                     _loggingService.LogInformation("User logged in successfully: {Email}", user.Email);
                     return (true, "Login successful.", user);

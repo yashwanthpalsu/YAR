@@ -1,0 +1,231 @@
+@model IEnumerable<Reminder.Models.DBEntities.UserViewModel>
+@{
+    ViewData["Title"] = "Manage Users";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-users text-primary me-2"></i>Manage Users</h2>
+                <div>
+                    <a asp-action="Index" class="btn btn-secondary me-2">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                    <a asp-action="SystemStatus" class="btn btn-info">
+                        <i class="fas fa-cog me-2"></i>System Status
+                    </a>
+                </div>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- User Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body text-center">
+                            <h4>@Model.Count()</h4>
+                            <p class="mb-0">Total Users</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h4>@Model.Count(u => u.User.IsActive)</h4>
+                            <p class="mb-0">Active Users</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                            <h4>@Model.Count(u => u.IsAdmin)</h4>
+                            <p class="mb-0">Admins</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body text-center">
+                            <h4>@Model.Count(u => u.User.EmailConfirmed)</h4>
+                            <p class="mb-0">Verified Users</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>User List</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                    <th>Role</th>
+                                    <th>Created</th>
+                                    <th>Last Login</th>
+                                    <th>Reminders</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var userViewModel in Model)
+                                {
+                                    var user = userViewModel.User;
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
+                                                    @user.FirstName[0]@user.LastName[0]
+                                                </div>
+                                                <div>
+                                                    <strong>@user.FullName</strong>
+                                                    @if (!user.EmailConfirmed)
+                                                    {
+                                                        <span class="badge bg-warning ms-1">Unverified</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">@user.Email</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">@(string.IsNullOrEmpty(user.PhoneNumber) ? "Not set" : user.PhoneNumber)</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge @(user.IsActive ? "bg-success" : "bg-danger")">
+                                                @(user.IsActive ? "Active" : "Inactive")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge @(userViewModel.IsAdmin ? "bg-danger" : "bg-secondary")" id="role-@user.Id">
+                                                @(userViewModel.IsAdmin ? "Admin" : "User")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">@user.CreatedAt.ToString("MMM dd, yyyy")</small>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @(user.LastLoginAt?.ToString("MMM dd, yyyy HH:mm") ?? "Never")
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">@user.Reminders.Count</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                                    <i class="fas fa-cog"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <form asp-action="ToggleUserStatus" method="post" style="display: inline;">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="userId" value="@user.Id" />
+                                                            <button type="submit" class="dropdown-item @(user.IsActive ? "text-danger" : "text-success")">
+                                                                <i class="fas @(user.IsActive ? "fa-user-slash" : "fa-user-check") me-2"></i>
+                                                                @(user.IsActive ? "Deactivate" : "Activate")
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    <li>
+                                                        <form asp-action="ToggleAdminStatus" method="post" style="display: inline;">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="userId" value="@user.Id" />
+                                                            <button type="submit" class="dropdown-item @(userViewModel.IsAdmin ? "text-warning" : "text-danger")">
+                                                                <i class="fas @(userViewModel.IsAdmin ? "fa-user-minus" : "fa-user-shield") me-2"></i>
+                                                                @(userViewModel.IsAdmin ? "Remove Admin" : "Make Admin")
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <button class="dropdown-item text-danger" onclick="confirmDeleteUser('@user.Id', '@user.FullName')">
+                                                            <i class="fas fa-trash me-2"></i>Delete User
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete User Confirmation Modal -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>Confirm Delete User
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the user "<span id="userName"></span>"?</p>
+                <p class="text-muted small">This action will permanently delete the user and all their reminders. This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteUserForm" method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Delete User
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDeleteUser(userId, userName) {
+            document.getElementById('userName').textContent = userName;
+            document.getElementById('deleteUserForm').action = '@Url.Action("DeleteUser")';
+            
+            // Add hidden input for userId
+            var hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'userId';
+            hiddenInput.value = userId;
+            document.getElementById('deleteUserForm').appendChild(hiddenInput);
+            
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteUserModal'));
+            deleteModal.show();
+        }
+    </script>
+} 

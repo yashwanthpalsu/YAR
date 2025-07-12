@@ -7,68 +7,77 @@
 <div class="container-fluid">
     <div class="row justify-content-center align-items-center min-vh-100">
         <div class="col-md-8 col-lg-6">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-success text-white text-center py-4">
-                    <h3 class="mb-0">
-                        <i class="fas fa-user-plus me-2"></i>Create Account
-                    </h3>
-                    <p class="mb-0 mt-2">Join us and start managing your reminders</p>
+            <div class="card fade-in">
+                <div class="card-header">
+                    <div class="text-center">
+                        <div class="auth-icon mb-3">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <h3 class="mb-2">Create Account</h3>
+                        <p class="mb-0 text-muted">Join us and start managing your reminders</p>
+                    </div>
                 </div>
-                <div class="card-body p-4">
+                <div class="card-body p-5">
                     @if (!ViewData.ModelState.IsValid)
                     {
                         <div class="alert alert-danger" role="alert">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Registration failed!</strong> Please check the errors below.
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span><strong>Registration failed!</strong> Please check the errors below.</span>
                         </div>
                     }
 
                     <form asp-action="Register" asp-controller="Account" method="post">
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-6 mb-4">
                                 <label asp-for="FirstName" class="form-label">
-                                    <i class="fas fa-user me-2"></i>First Name
+                                    <i class="fas fa-user me-2"></i>
+                                    <span>First Name</span>
                                 </label>
                                 <input asp-for="FirstName" type="text" class="form-control" placeholder="Enter first name" required>
                                 <span asp-validation-for="FirstName" class="text-danger small"></span>
                             </div>
 
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-6 mb-4">
                                 <label asp-for="LastName" class="form-label">
-                                    <i class="fas fa-user me-2"></i>Last Name
+                                    <i class="fas fa-user me-2"></i>
+                                    <span>Last Name</span>
                                 </label>
                                 <input asp-for="LastName" type="text" class="form-control" placeholder="Enter last name" required>
                                 <span asp-validation-for="LastName" class="text-danger small"></span>
                             </div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label asp-for="Email" class="form-label">
-                                <i class="fas fa-envelope me-2"></i>Email Address
+                                <i class="fas fa-envelope me-2"></i>
+                                <span>Email Address</span>
                             </label>
                             <input asp-for="Email" type="email" class="form-control" placeholder="Enter your email" required>
                             <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label asp-for="PhoneNumber" class="form-label">
-                                <i class="fas fa-phone me-2"></i>Phone Number
+                                <i class="fas fa-phone me-2"></i>
+                                <span>Phone Number</span>
                             </label>
                             <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="Enter phone number" required>
                             <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label asp-for="Address" class="form-label">
-                                <i class="fas fa-map-marker-alt me-2"></i>Address
+                                <i class="fas fa-map-marker-alt me-2"></i>
+                                <span>Address</span>
                             </label>
                             <textarea asp-for="Address" class="form-control" rows="3" placeholder="Enter your address (optional)"></textarea>
                             <span asp-validation-for="Address" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label asp-for="Password" class="form-label">
-                                <i class="fas fa-lock me-2"></i>Password
+                                <i class="fas fa-lock me-2"></i>
+                                <span>Password</span>
                             </label>
                             <div class="input-group">
                                 <input asp-for="Password" type="password" class="form-control" placeholder="Enter password" required>
@@ -79,9 +88,10 @@
                             <span asp-validation-for="Password" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label asp-for="ConfirmPassword" class="form-label">
-                                <i class="fas fa-lock me-2"></i>Confirm Password
+                                <i class="fas fa-lock me-2"></i>
+                                <span>Confirm Password</span>
                             </label>
                             <div class="input-group">
                                 <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirm password" required>
@@ -92,28 +102,32 @@
                             <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-3 form-check">
-                            <input asp-for="AgreeToTerms" type="checkbox" class="form-check-input" id="agreeTerms">
+                        <div class="mb-4 form-check">
+                            <input asp-for="AgreeToTerms" type="checkbox" class="form-check-input" id="agreeTerms" required>
                             <label class="form-check-label" for="agreeTerms">
-                                <i class="fas fa-check-square me-1"></i>I agree to the 
-                                <a href="#" class="text-decoration-none">Terms of Service</a> and 
-                                <a href="#" class="text-decoration-none">Privacy Policy</a>
+                                <i class="fas fa-check-square me-2"></i>
+                                <span>I agree to the 
+                                <a asp-action="TermsAndConditions" target="_blank" class="text-decoration-none fw-bold">Terms and Conditions</a> 
+                                and <a asp-action="PrivacyPolicy" target="_blank" class="text-decoration-none fw-bold">Privacy Policy</a>
+                                and acknowledge that I have read and understood them</span>
                             </label>
                             <span asp-validation-for="AgreeToTerms" class="text-danger small d-block"></span>
                         </div>
 
-                        <div class="d-grid mb-3">
-                            <button type="submit" class="btn btn-success btn-lg">
-                                <i class="fas fa-user-plus me-2"></i>Create Account
+                        <div class="d-grid mb-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>
+                                <span>Create Account</span>
                             </button>
                         </div>
                     </form>
                 </div>
-                <div class="card-footer text-center py-3">
+                <div class="card-footer text-center py-4">
                     <p class="mb-0">
                         Already have an account? 
                         <a asp-action="Login" class="text-decoration-none fw-bold">
-                            <i class="fas fa-sign-in-alt me-1"></i>Sign In
+                            <i class="fas fa-sign-in-alt me-1"></i>
+                            <span>Sign In</span>
                         </a>
                     </p>
                 </div>
@@ -121,6 +135,57 @@
         </div>
     </div>
 </div>
+
+@section Styles {
+    <style>
+        .auth-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            color: white;
+            font-size: var(--font-size-2xl);
+        }
+        
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .form-check-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+        }
+        
+        .input-group .btn {
+            border-left: none;
+        }
+        
+        .input-group .form-control {
+            border-right: none;
+        }
+        
+        .input-group .form-control:focus {
+            border-right: none;
+        }
+        
+        .input-group .btn:focus {
+            box-shadow: none;
+        }
+        
+        .form-check-label a {
+            color: var(--primary-color);
+        }
+        
+        .form-check-label a:hover {
+            color: var(--primary-dark);
+        }
+    </style>
+}
 
 @section Scripts {
     <script>
@@ -153,6 +218,27 @@
                 passwordInput.type = 'password';
                 icon.classList.remove('fa-eye-slash');
                 icon.classList.add('fa-eye');
+            }
+        });
+
+        // Form validation for terms and conditions
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const agreeTerms = document.getElementById('agreeTerms');
+            if (!agreeTerms.checked) {
+                e.preventDefault();
+                alert('You must agree to the Terms and Conditions to continue.');
+                agreeTerms.focus();
+                return false;
+            }
+        });
+
+        // Add visual feedback for terms checkbox
+        document.getElementById('agreeTerms').addEventListener('change', function() {
+            const label = this.nextElementSibling;
+            if (this.checked) {
+                label.style.color = 'var(--success-color)';
+            } else {
+                label.style.color = '';
             }
         });
     </script>

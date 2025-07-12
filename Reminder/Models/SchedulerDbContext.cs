@@ -13,6 +13,7 @@ namespace Reminder.Models
         
         public DbSet<DBEntities.ReminderViewModel> Reminders { get; set; }
         public DbSet<DBEntities.ScheduleViewModel> Schedules { get; set; }
+        public DbSet<DBEntities.ChatMessage> ChatMessages { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

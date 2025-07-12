@@ -1,0 +1,199 @@
+@model IEnumerable<Reminder.Models.DBEntities.ReminderViewModel>
+@{
+    ViewData["Title"] = "Manage Reminders";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-bell text-primary me-2"></i>Manage Your Reminders</h2>
+                <a asp-action="CreateReminder" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create New Reminder
+                </a>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (!Model.Any())
+            {
+                <div class="card shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-inbox text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3 text-muted">No Active Reminders</h4>
+                        <p class="text-muted">You don't have any active reminders at the moment.</p>
+                        <a asp-action="CreateReminder" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Create Your First Reminder
+                        </a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    @foreach (var reminder in Model)
+                    {
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-bell me-2"></i>@reminder.Name
+                                    </h6>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a class="dropdown-item" asp-action="EditReminder" asp-route-id="@reminder.ReminderId">
+                                                    <i class="fas fa-edit me-2"></i>Edit
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item text-danger" onclick="confirmDelete(@reminder.ReminderId, '@reminder.Name')">
+                                                    <i class="fas fa-trash me-2"></i>Delete
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">@reminder.Message</p>
+                                    
+                                    @if (!string.IsNullOrEmpty(reminder.ImportanceLevel))
+                                    {
+                                        <div class="mb-2">
+                                            <span class="badge @GetImportanceBadgeClass(reminder.ImportanceLevel)">
+                                                @reminder.ImportanceLevel
+                                            </span>
+                                        </div>
+                                    }
+
+                                    <div class="mb-3">
+                                        <small class="text-muted">Notification Methods:</small>
+                                        <div class="mt-1">
+                                            @if (reminder.IsEmailModeSelected)
+                                            {
+                                                <span class="badge bg-info me-1"><i class="fas fa-envelope me-1"></i>Email</span>
+                                            }
+                                            @if (reminder.IsTextModeSelected)
+                                            {
+                                                <span class="badge bg-success me-1"><i class="fas fa-sms me-1"></i>SMS</span>
+                                            }
+                                            @if (reminder.IsCallModeSelected)
+                                            {
+                                                <span class="badge bg-warning me-1"><i class="fas fa-phone me-1"></i>Call</span>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <small class="text-muted">Scheduled Times:</small>
+                                        <div class="mt-1">
+                                            @foreach (var schedule in reminder.Schedules.Where(s => !s.IsReminderSent).Take(3))
+                                            {
+                                                <div class="small text-muted">
+                                                    <i class="fas fa-calendar me-1"></i>
+                                                    @schedule.Date.ToString("MMM dd, yyyy") at @(new DateTime(1,1,1) + schedule.Time).ToString("hh:mm tt")
+                                                </div>
+                                            }
+                                            @if (reminder.Schedules.Count(s => !s.IsReminderSent) > 3)
+                                            {
+                                                <div class="small text-muted">
+                                                    <i class="fas fa-plus me-1"></i>@(reminder.Schedules.Count(s => !s.IsReminderSent) - 3) more...
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>
+                                            @reminder.Schedules.Count(s => !s.IsReminderSent) pending
+                                        </small>
+                                        <div>
+                                            <a asp-action="EditReminder" asp-route-id="@reminder.ReminderId" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit me-1"></i>Edit
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(@reminder.ReminderId, '@reminder.Name')">
+                                                <i class="fas fa-trash me-1"></i>Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>Confirm Delete
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the reminder "<span id="reminderName"></span>"?</p>
+                <p class="text-muted small">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Delete Reminder
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(reminderId, reminderName) {
+            document.getElementById('reminderName').textContent = reminderName;
+            document.getElementById('deleteForm').action = '@Url.Action("DeleteReminder")/' + reminderId;
+            
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+    </script>
+}
+
+@functions {
+    public string GetImportanceBadgeClass(string importance)
+    {
+        return importance?.ToLower() switch
+        {
+            "low" => "bg-secondary",
+            "normal" => "bg-primary",
+            "high" => "bg-warning",
+            "critical" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+} 

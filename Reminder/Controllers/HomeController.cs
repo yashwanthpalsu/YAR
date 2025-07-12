@@ -43,17 +43,7 @@ public class HomeController : Controller
                 }
             }
 
-            // Add system status for debugging
-            ViewBag.SystemStatus = new
-            {
-                DatabaseConnected = await TestDatabaseConnectionAsync(),
-                EmailConfigured = !string.IsNullOrEmpty(_configuration["Email:SmtpServer"]),
-                Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown",
-                AppUrl = _configuration["AppUrl"]
-            };
-
-            ViewBag.Reminders = reminders;
-            return View();
+            return View(reminders);
         }
         catch (Exception ex)
         {
@@ -128,6 +118,18 @@ public class HomeController : Controller
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 
+    [HttpGet]
+    public IActionResult CreateReminder()
+    {
+        var model = new Reminder.Models.DBEntities.ReminderViewModel
+        {
+            Name = string.Empty,
+            Message = string.Empty,
+            Schedules = new List<Reminder.Models.DBEntities.ScheduleViewModel> { new Reminder.Models.DBEntities.ScheduleViewModel() }
+        };
+        return View("EditReminder", model);
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateReminder(ReminderViewModel model)
     {
@@ -189,6 +191,124 @@ public class HomeController : Controller
             _logger.LogError(ex, "Error creating reminder for user {UserId}", model.UserId);
             ModelState.AddModelError("", "An error occurred while creating the reminder. Please try again.");
             return View("Index", model);
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ManageReminders()
+    {
+        try
+        {
+            var currentUser = await _authService.GetCurrentUserAsync();
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var reminders = await _reminderService.GetUserRemindersAsync(currentUser.Id);
+            var activeReminders = reminders.Where(r => r.Schedules.Any(s => !s.IsReminderSent)).ToList();
+
+            return View(activeReminders);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading reminders for user");
+            return View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EditReminder(int id)
+    {
+        try
+        {
+            var currentUser = await _authService.GetCurrentUserAsync();
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var reminder = await _reminderService.GetReminderByIdAsync(id);
+            if (reminder == null || reminder.UserId != currentUser.Id)
+            {
+                return NotFound();
+            }
+
+            return View(reminder);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading reminder for editing");
+            return View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditReminder(ReminderViewModel model)
+    {
+        try
+        {
+            var currentUser = await _authService.GetCurrentUserAsync();
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var success = await _reminderService.UpdateReminderAsync(model);
+            if (success)
+            {
+                TempData["SuccessMessage"] = "Reminder updated successfully!";
+                return RedirectToAction("ManageReminders");
+            }
+            else
+            {
+                ModelState.AddModelError("", "Failed to update reminder. Please try again.");
+                return View(model);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating reminder");
+            ModelState.AddModelError("", "An error occurred while updating the reminder. Please try again.");
+            return View(model);
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteReminder(int id)
+    {
+        try
+        {
+            var currentUser = await _authService.GetCurrentUserAsync();
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var success = await _reminderService.DeleteReminderAsync(id, currentUser.Id);
+            if (success)
+            {
+                TempData["SuccessMessage"] = "Reminder deleted successfully!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Failed to delete reminder. Please try again.";
+            }
+
+            return RedirectToAction("ManageReminders");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting reminder");
+            TempData["ErrorMessage"] = "An error occurred while deleting the reminder. Please try again.";
+            return RedirectToAction("ManageReminders");
         }
     }
 

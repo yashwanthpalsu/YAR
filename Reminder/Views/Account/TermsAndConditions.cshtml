@@ -1,0 +1,50 @@
+@{
+    ViewData["Title"] = "Terms and Conditions";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h2 class="mb-0">
+                        <i class="fas fa-file-contract me-2"></i>Terms and Conditions
+                    </h2>
+                    <p class="mb-0 mt-2">Please read these terms carefully before using our service</p>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Important:</strong> By using our service, you agree to these terms and conditions.
+                    </div>
+                    
+                    <div class="terms-content" style="max-height: 600px; overflow-y: auto; border: 1px solid #dee2e6; padding: 20px; background-color: #f8f9fa;">
+                        <pre style="white-space: pre-wrap; font-family: inherit; margin: 0; line-height: 1.6;">@ViewBag.TermsContent</pre>
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <a href="javascript:history.back()" class="btn btn-secondary me-2">
+                            <i class="fas fa-arrow-left me-2"></i>Go Back
+                        </a>
+                        <a asp-action="Register" class="btn btn-primary">
+                            <i class="fas fa-user-plus me-2"></i>Continue to Registration
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-scroll to top when page loads
+        window.onload = function() {
+            const termsContent = document.querySelector('.terms-content');
+            if (termsContent) {
+                termsContent.scrollTop = 0;
+            }
+        };
+    </script>
+} 

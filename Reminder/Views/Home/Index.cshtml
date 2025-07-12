@@ -1,267 +1,475 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-    var reminderImportances = new List<SelectListItem>
-    {
-        new SelectListItem { Value = "Low", Text = "Low" },
-        new SelectListItem { Value = "Normal", Text = "Normal" },
-        new SelectListItem { Value = "High", Text = "High" },
-        new SelectListItem { Value = "Critical", Text = "Critical" }
-    };
+﻿@model IEnumerable<Reminder.Models.DBEntities.ReminderViewModel>
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["UseGradientBg"] = true;
+    Layout = "_Layout";
 }
 
-@if (User.Identity?.IsAuthenticated == true)
-{
-    <div class="container mt-4">
-        <div class="row mb-4">
-            <div class="col">
-                <h2><i class="fas fa-bell text-primary"></i> Welcome, @User.Identity.Name!</h2>
-                <p class="text-muted">Create and manage your reminders with ease.</p>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Dashboard -->
+        <div class="col-lg-8">
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <!-- Stats Cards -->
+                        <div class="row mb-5">
+                            <div class="col-md-4 mb-3">
+                                <div class="card bg-gradient-primary text-white h-100">
+                                    <div class="card-body text-center">
+                                        <div class="stats-icon mb-3">
+                                            <i class="fas fa-bell fa-2x"></i>
+                                        </div>
+                                        <h3 class="mb-2">@Model.Count()</h3>
+                                        <p class="mb-0 opacity-75">Total Reminders</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card bg-gradient-warning text-white h-100">
+                                    <div class="card-body text-center">
+                                        <div class="stats-icon mb-3">
+                                            <i class="fas fa-clock fa-2x"></i>
+                                        </div>
+                                        <h3 class="mb-2">@Model.Count(r => r.Schedules.Any(s => !s.IsReminderSent && s.Date.Add(s.Time) > DateTime.Now))</h3>
+                                        <p class="mb-0 opacity-75">Pending Reminders</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card bg-gradient-success text-white h-100">
+                                    <div class="card-body text-center">
+                                        <div class="stats-icon mb-3">
+                                            <i class="fas fa-check-circle fa-2x"></i>
+                                        </div>
+                                        <h3 class="mb-2">@Model.Count(r => r.Schedules.Any(s => s.IsReminderSent))</h3>
+                                        <p class="mb-0 opacity-75">Completed</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Reminders Section -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h6 class="section-title">
+                                <i class="fas fa-list"></i>
+                                <span>Recent Reminders</span>
+                            </h6>
+                            <a asp-controller="Home" asp-action="CreateReminder" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i>
+                                <span>Create Reminder</span>
+                            </a>
+                        </div>
+
+                        @if (Model.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Description</th>
+                                            <th>Next Reminder</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var reminder in Model.Take(5))
+                                        {
+                                            var nextSchedule = reminder.Schedules
+                                                .Where(s => !s.IsReminderSent && s.Date.Add(s.Time) > DateTime.Now)
+                                                .OrderBy(s => s.Date.Add(s.Time))
+                                                .FirstOrDefault();
+                                            
+                                            <tr class="slide-in">
+                                                <td>
+                                                    <strong class="text-primary">@reminder.Name</strong>
+                                                </td>
+                                                <td>
+                                                    <span class="text-muted">@reminder.Message</span>
+                                                </td>
+                                                <td>
+                                                    @if (nextSchedule != null)
+                                                    {
+                                                        <span class="text-info">
+                                                            <i class="fas fa-calendar-alt me-1"></i>
+                                                            @nextSchedule.Date.Add(nextSchedule.Time).ToString("MMM dd, yyyy HH:mm")
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">
+                                                            <i class="fas fa-check me-1"></i>
+                                                            No upcoming reminders
+                                                        </span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (nextSchedule != null)
+                                                    {
+                                                        <span class="badge bg-warning">
+                                                            <i class="fas fa-clock me-1"></i>
+                                                            Pending
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-success">
+                                                            <i class="fas fa-check me-1"></i>
+                                                            Completed
+                                                        </span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            @if (Model.Count() > 5)
+                            {
+                                <div class="text-center mt-4">
+                                    <a asp-controller="Home" asp-action="ManageReminders" class="btn btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                        <span>View All Reminders</span>
+                                    </a>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted py-5">
+                                <div class="empty-state">
+                                    <i class="fas fa-bell fa-4x mb-4 text-primary"></i>
+                                    <h5>No reminders yet</h5>
+                                    <p class="mb-4">Create your first reminder to get started!</p>
+                                    <a asp-controller="Home" asp-action="CreateReminder" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-plus me-2"></i>
+                                        <span>Create Reminder</span>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <div class="welcome-state">
+                                <i class="fas fa-user-lock fa-4x mb-4 text-muted"></i>
+                                <h4>Welcome to Reminder</h4>
+                                <p class="mb-4">Please log in to manage your reminders and get started with our AI assistant.</p>
+                                <div class="d-flex justify-content-center gap-3">
+                                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-sign-in-alt me-2"></i>
+                                        <span>Login</span>
+                                    </a>
+                                    <a asp-controller="Account" asp-action="Register" class="btn btn-outline-primary btn-lg">
+                                        <i class="fas fa-user-plus me-2"></i>
+                                        <span>Register</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
-        
-        @if (ViewBag.SystemStatus != null)
-        {
-            <div class="row mb-4">
-                <div class="col">
-                    <div class="card border-info">
-                        <div class="card-header bg-info text-white">
-                            <h6 class="mb-0"><i class="fas fa-cog"></i> System Status</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <small class="text-muted">Database:</small>
-                                    <span class="badge @(ViewBag.SystemStatus.DatabaseConnected ? "bg-success" : "bg-danger")">
-                                        @(ViewBag.SystemStatus.DatabaseConnected ? "Connected" : "Disconnected")
-                                    </span>
-                                </div>
-                                <div class="col-md-3">
-                                    <small class="text-muted">Email:</small>
-                                    <span class="badge @(ViewBag.SystemStatus.EmailConfigured ? "bg-success" : "bg-warning")">
-                                        @(ViewBag.SystemStatus.EmailConfigured ? "Configured" : "Not Configured")
-                                    </span>
-                                </div>
-                                <div class="col-md-3">
-                                    <small class="text-muted">Environment:</small>
-                                    <span class="badge bg-secondary">@ViewBag.SystemStatus.Environment</span>
-                                </div>
-                                <div class="col-md-3">
-                                    <small class="text-muted">App URL:</small>
-                                    <span class="text-muted">@ViewBag.SystemStatus.AppUrl</span>
+
+        <!-- AI Assistant Chat -->
+        <div class="col-lg-4">
+            <div class="card h-100 fade-in">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-robot"></i>
+                        <span>AI Assistant</span>
+                    </h5>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <div class="chat-messages flex-grow-1" id="chatMessages">
+                        <div class="text-center text-muted">
+                            <div class="ai-welcome">
+                                <i class="fas fa-robot fa-3x mb-3 text-primary"></i>
+                                <h6>Ask me to help with your reminders!</h6>
+                                <div class="chat-suggestions mt-3">
+                                    <p class="small mb-2"><strong>Try:</strong></p>
+                                    <ul class="suggestion-list">
+                                        <li>"What reminders do I have?"</li>
+                                        <li>"Schedule a meeting"</li>
+                                        <li>"Remind me to call mom"</li>
+                                        <li>"Show my upcoming tasks"</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        }
-    
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-    
-    <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0"><i class="fas fa-plus-circle"></i> Create New Reminder</h4>
-        </div>
-        <div class="card-body">
-            <form method="post" asp-action="CreateReminder" id="reminderForm">
-                <div class="mb-3">
-                    <label for="Name" class="form-label">
-                        <i class="fas fa-tag"></i> Reminder Name <span class="text-danger">*</span>
-                    </label>
-                    <input type="text" class="form-control" id="Name" name="Name" required />
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label">
-                        <i class="fas fa-bell"></i> Reminder Mode <span class="text-danger">*</span>
-                    </label>
-                    <div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" name="IsEmailModeSelected" id="mode_Email" value="true" />
-                            <label class="form-check-label" for="mode_Email">
-                                <i class="fas fa-envelope"></i> Email
-                            </label>
+                    
+                    <div class="chat-input">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="messageInput" placeholder="Type your message..." 
+                                   onkeypress="handleKeyPress(event)">
+                            <button class="btn btn-primary" type="button" onclick="sendMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
                         </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" name="IsTextModeSelected" id="mode_TextMessage" value="true" />
-                            <label class="form-check-label" for="mode_TextMessage">
-                                <i class="fas fa-sms"></i> Text Message
-                            </label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" name="IsCallModeSelected" id="mode_Call" value="true" />
-                            <label class="form-check-label" for="mode_Call">
-                                <i class="fas fa-phone"></i> Call
-                            </label>
-                        </div>
-                    </div>
-                    <div class="invalid-feedback d-block" id="modeError" style="display:none;">
-                        <i class="fas fa-exclamation-triangle"></i> Please select at least one mode.
-                    </div>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="Message" class="form-label">
-                        <i class="fas fa-comment"></i> Message
-                    </label>
-                    <textarea class="form-control" id="Message" name="Message" maxlength="250" rows="3" placeholder="Enter your reminder message..."></textarea>
-                    <div class="form-text"><span id="charCount">0</span>/250 characters</div>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label">
-                        <i class="fas fa-calendar-alt"></i> Reminder Dates & Times <span class="text-danger">*</span>
-                    </label>
-                    <div id="dateTimeContainer">
-                        <div class="input-group mb-2">
-                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
-                            <input type="date" class="form-control" name="Schedules[0].Date" required />
-                            <span class="input-group-text"><i class="fas fa-clock"></i></span>
-                            <input type="time" class="form-control" name="Schedules[0].Time" required />
-                            <button type="button" class="btn btn-danger removeDateTime" style="display:none;">
-                                <i class="fas fa-trash"></i>
+                        <div class="mt-3">
+                            <button class="btn btn-sm btn-outline-secondary" onclick="toggleVoiceInput()">
+                                <i class="fas fa-microphone me-1"></i>
+                                <span>Voice Input</span>
                             </button>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-secondary" id="addDateTime">
-                        <i class="fas fa-plus"></i> Add Another Date/Time
-                    </button>
-                    <div class="invalid-feedback d-block" id="dateError" style="display:none;">
-                        <i class="fas fa-exclamation-triangle"></i> Please add at least one date and time.
-                    </div>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="ImportanceLevel" class="form-label">
-                        <i class="fas fa-exclamation-triangle"></i> Reminder Importance
-                    </label>
-                    @Html.DropDownList("ImportanceLevel", reminderImportances, "Select Importance", new { @class = "form-select", id = "ImportanceLevel" })
-                </div>
-                
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Save Reminder
-                </button>
-            </form>
-        </div>
-    </div>
-    </div>
-}
-else
-{
-    <div class="container-fluid">
-        <div class="row justify-content-center align-items-center min-vh-100">
-            <div class="col-md-8 col-lg-6 text-center">
-                <div class="card shadow-lg border-0">
-                    <div class="card-body p-5">
-                        <i class="fas fa-bell text-primary" style="font-size: 4rem;"></i>
-                        <h2 class="mt-4 mb-3">Welcome to Reminder</h2>
-                        <p class="text-muted mb-4">Your personal reminder management system. Stay organized and never miss important tasks again.</p>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="card h-100 border-0 bg-light">
-                                    <div class="card-body text-center">
-                                        <i class="fas fa-user-plus text-success mb-3" style="font-size: 2rem;"></i>
-                                        <h5>New User?</h5>
-                                        <p class="text-muted">Create an account to start managing your reminders</p>
-                                        <a asp-controller="Account" asp-action="Register" class="btn btn-success">
-                                            <i class="fas fa-user-plus me-2"></i>Sign Up
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="card h-100 border-0 bg-light">
-                                    <div class="card-body text-center">
-                                        <i class="fas fa-sign-in-alt text-primary mb-3" style="font-size: 2rem;"></i>
-                                        <h5>Returning User?</h5>
-                                        <p class="text-muted">Sign in to access your reminders</p>
-                                        <a asp-controller="Account" asp-action="Login" class="btn btn-primary">
-                                            <i class="fas fa-sign-in-alt me-2"></i>Sign In
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-4">
-                            <h6 class="text-muted mb-3">Features</h6>
-                            <div class="row text-center">
-                                <div class="col-md-4 mb-3">
-                                    <i class="fas fa-envelope text-info mb-2" style="font-size: 1.5rem;"></i>
-                                    <p class="small">Email Reminders</p>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <i class="fas fa-sms text-success mb-2" style="font-size: 1.5rem;"></i>
-                                    <p class="small">SMS Notifications</p>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <i class="fas fa-phone text-warning mb-2" style="font-size: 1.5rem;"></i>
-                                    <p class="small">Phone Calls</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Voice Input Modal -->
+<div class="modal fade voice-modal" id="voiceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-microphone"></i>
+                    <span>Voice Input</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="voiceStatus" class="voice-status">
+                    <i class="fas fa-microphone fa-3x"></i>
+                    <p class="mt-3">Click the button below to start recording</p>
+                </div>
+                <div id="voiceRecording" class="voice-status" style="display: none;">
+                    <i class="fas fa-microphone-slash fa-3x"></i>
+                    <p class="mt-3">Recording... Click to stop</p>
+                </div>
+                <button class="btn btn-primary btn-lg" id="recordButton" onclick="toggleRecording()">
+                    <i class="fas fa-microphone me-2"></i>
+                    <span>Start Recording</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/chat.css" />
+    <style>
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        }
+        
+        .bg-gradient-warning {
+            background: linear-gradient(135deg, var(--warning-color), #d97706);
+        }
+        
+        .bg-gradient-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+        }
+        
+        .stats-icon {
+            opacity: 0.8;
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            color: var(--gray-700);
+            font-weight: 600;
+        }
+        
+        .empty-state, .welcome-state, .ai-welcome {
+            padding: var(--spacing-6);
+        }
+        
+        .opacity-75 {
+            opacity: 0.75;
+        }
+        
+        .gap-3 {
+            gap: var(--spacing-3);
+        }
+    </style>
 }
-<script>
-    // Character count for message
-    $('#Message').on('input', function () {
-        $('#charCount').text(this.value.length);
-    });
 
-    // Dynamic date/time pickers
-    let dateTimeIndex = 1;
-    $('#addDateTime').click(function () {
-        const html = `
-        <div class="input-group mb-2">
-            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
-            <input type="date" class="form-control" name="Schedules[${dateTimeIndex}].Date" required />
-            <span class="input-group-text"><i class="fas fa-clock"></i></span>
-            <input type="time" class="form-control" name="Schedules[${dateTimeIndex}].Time" required />
-            <button type="button" class="btn btn-danger removeDateTime">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>`;
-        $('#dateTimeContainer').append(html);
-        dateTimeIndex++;
-    });
-
-    // Remove date/time picker
-    $('#dateTimeContainer').on('click', '.removeDateTime', function () {
-        $(this).closest('.input-group').remove();
-    });
-
-    // Client-side validation for at least one mode and one date
-    $('#reminderForm').on('submit', function (e) {
-        let valid = true;
-        // Validate at least one mode
-        if (
-            !$('input[name="IsEmailModeSelected"]').is(':checked') &&
-            !$('input[name="IsTextModeSelected"]').is(':checked') &&
-            !$('input[name="IsCallModeSelected"]').is(':checked')
-        ) {
-            $('#modeError').show();
-            valid = false;
-        } else {
-            $('#modeError').hide();
+@section Scripts {
+    <script>
+        let isRecording = false;
+        let recognition = null;
+        
+        // Initialize speech recognition
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('messageInput').value = transcript;
+                stopRecording();
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                stopRecording();
+            };
         }
-        // Validate at least one date/time group
-        if ($('#dateTimeContainer .input-group').length === 0) {
-            $('#dateError').show();
-            valid = false;
-        } else {
-            $('#dateError').hide();
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
         }
-        if (!valid) e.preventDefault();
-    });
-</script>
+        
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            addMessageToChat(message, true);
+            messageInput.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Send to server
+            fetch('@Url.Action("SendMessage", "Chat")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideTypingIndicator();
+                if (data.success) {
+                    addMessageToChat(data.message, false);
+                    
+                    // Handle follow-up questions
+                    if (data.requiresFollowUp && data.followUpQuestion) {
+                        setTimeout(() => {
+                            addMessageToChat(data.followUpQuestion, false);
+                        }, 1000);
+                    }
+                } else {
+                    addMessageToChat('Sorry, I encountered an error. Please try again.', false);
+                }
+            })
+            .catch(error => {
+                hideTypingIndicator();
+                addMessageToChat('Sorry, I encountered an error. Please try again.', false);
+                console.error('Error:', error);
+            });
+        }
+        
+        function addMessageToChat(message, isUser) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+            
+            const timestamp = new Date().toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <div class="message-header">
+                        <div class="avatar-sm">
+                            <i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i>
+                        </div>
+                        <div class="message-sender">${isUser ? 'You' : 'AI Assistant'}</div>
+                    </div>
+                    <div class="message-text">${message}</div>
+                    <div class="message-time">${timestamp}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function showTypingIndicator() {
+            const chatMessages = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message ai-message typing-indicator-message';
+            typingDiv.id = 'typingIndicator';
+            
+            typingDiv.innerHTML = `
+                <div class="typing-indicator">
+                    <span>AI is typing</span>
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+        
+        function toggleVoiceInput() {
+            const modal = new bootstrap.Modal(document.getElementById('voiceModal'));
+            modal.show();
+        }
+        
+        function toggleRecording() {
+            if (!recognition) {
+                alert('Speech recognition is not supported in your browser.');
+                return;
+            }
+            
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        }
+        
+        function startRecording() {
+            isRecording = true;
+            document.getElementById('voiceStatus').style.display = 'none';
+            document.getElementById('voiceRecording').style.display = 'block';
+            document.getElementById('recordButton').innerHTML = '<i class="fas fa-stop me-2"></i><span>Stop Recording</span>';
+            recognition.start();
+        }
+        
+        function stopRecording() {
+            isRecording = false;
+            document.getElementById('voiceStatus').style.display = 'block';
+            document.getElementById('voiceRecording').style.display = 'none';
+            document.getElementById('recordButton').innerHTML = '<i class="fas fa-microphone me-2"></i><span>Start Recording</span>';
+            recognition.stop();
+            
+            const modal = bootstrap.Modal.getInstance(document.getElementById('voiceModal'));
+            if (modal) {
+                modal.hide();
+            }
+        }
+    </script>
+}

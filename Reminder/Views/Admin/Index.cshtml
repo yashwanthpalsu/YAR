@@ -1,0 +1,163 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "_Layout";
+    var stats = ViewBag.SystemStats;
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-shield-alt text-primary me-2"></i>Admin Dashboard</h2>
+                <div>
+                    <a asp-action="SystemStatus" class="btn btn-info me-2">
+                        <i class="fas fa-cog me-2"></i>System Status
+                    </a>
+                    <a asp-action="ManageUsers" class="btn btn-primary">
+                        <i class="fas fa-users me-2"></i>Manage Users
+                    </a>
+                </div>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- System Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">@stats.TotalUsers</h4>
+                                    <p class="card-text">Total Users</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-users fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">@stats.ActiveUsers</h4>
+                                    <p class="card-text">Active Users</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-user-check fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">@stats.TotalReminders</h4>
+                                    <p class="card-text">Total Reminders</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-bell fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">@stats.PendingReminders</h4>
+                                    <p class="card-text">Pending Reminders</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-clock fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-users me-2"></i>User Management</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Manage user accounts, activate/deactivate users, and assign admin privileges.</p>
+                            <a asp-action="ManageUsers" class="btn btn-primary">
+                                <i class="fas fa-users me-2"></i>Manage Users
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-cog me-2"></i>System Status</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Monitor system health, database connectivity, and email configuration.</p>
+                            <a asp-action="SystemStatus" class="btn btn-info">
+                                <i class="fas fa-cog me-2"></i>View System Status
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Links -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Hangfire Dashboard</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Monitor background jobs, scheduled tasks, and system performance.</p>
+                            <a href="/hangfire" target="_blank" class="btn btn-secondary">
+                                <i class="fas fa-tasks me-2"></i>Open Jobs Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0"><i class="fas fa-home me-2"></i>Main Application</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Return to the main application and user interface.</p>
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-dark">
+                                <i class="fas fa-home me-2"></i>Go to Main App
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
