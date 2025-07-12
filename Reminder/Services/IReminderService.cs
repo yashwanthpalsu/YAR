@@ -30,6 +30,11 @@ namespace Reminder.Services
         Task<bool> DeleteReminderAsync(int reminderId, string userId);
         
         /// <summary>
+        /// Deletes a reminder by title or ID for a specific user.
+        /// </summary>
+        Task<bool> DeleteReminderAsync(string userId, string? title = null, int? id = null);
+        
+        /// <summary>
         /// Deletes a specific schedule and its associated Hangfire jobs.
         /// </summary>
         Task<bool> DeleteScheduleAsync(int scheduleId, string userId);

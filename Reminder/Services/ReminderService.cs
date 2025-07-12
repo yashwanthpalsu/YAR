@@ -287,6 +287,74 @@ namespace Reminder.Services
             }
         }
 
+        public async Task<bool> DeleteReminderAsync(string userId, string? title = null, int? id = null)
+        {
+            try
+            {
+                ReminderViewModel? reminder = null;
+
+                if (id.HasValue)
+                {
+                    // Delete by ID
+                    reminder = await _context.Reminders
+                        .Include(r => r.Schedules)
+                        .FirstOrDefaultAsync(r => r.ReminderId == id.Value && r.UserId == userId);
+                }
+                else if (!string.IsNullOrWhiteSpace(title))
+                {
+                    // Delete by title (case-insensitive)
+                    reminder = await _context.Reminders
+                        .Include(r => r.Schedules)
+                        .FirstOrDefaultAsync(r => r.Name.ToLower() == title.ToLower() && r.UserId == userId);
+                }
+
+                if (reminder == null)
+                {
+                    var notFoundIdentifier = id.HasValue ? $"ID {id.Value}" : $"title '{title}'";
+                    _loggingService.LogWarning("Reminder not found for deletion: {NotFoundIdentifier} by user {UserId}", notFoundIdentifier, userId);
+                    return false;
+                }
+
+                // Delete Hangfire jobs for all schedules before removing them
+                foreach (var schedule in reminder.Schedules)
+                {
+                    if (!string.IsNullOrEmpty(schedule.EmailJobId))
+                    {
+                        BackgroundJob.Delete(schedule.EmailJobId);
+                        _loggingService.LogInformation("Deleted email job {JobId} for schedule {ScheduleId}", schedule.EmailJobId, schedule.ScheduleId);
+                    }
+                    if (!string.IsNullOrEmpty(schedule.SmsJobId))
+                    {
+                        BackgroundJob.Delete(schedule.SmsJobId);
+                        _loggingService.LogInformation("Deleted SMS job {JobId} for schedule {ScheduleId}", schedule.SmsJobId, schedule.ScheduleId);
+                    }
+                    if (!string.IsNullOrEmpty(schedule.CallJobId))
+                    {
+                        BackgroundJob.Delete(schedule.CallJobId);
+                        _loggingService.LogInformation("Deleted call job {JobId} for schedule {ScheduleId}", schedule.CallJobId, schedule.ScheduleId);
+                    }
+                }
+
+                // Remove all schedules
+                _context.Schedules.RemoveRange(reminder.Schedules);
+                
+                // Remove the reminder
+                _context.Reminders.Remove(reminder);
+                
+                await _context.SaveChangesAsync();
+
+                var successIdentifier = id.HasValue ? $"ID {id.Value}" : $"title '{title}'";
+                _loggingService.LogInformation("Reminder deleted successfully: {SuccessIdentifier} by user {UserId}", successIdentifier, userId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                var errorIdentifier = id.HasValue ? $"ID {id.Value}" : $"title '{title}'";
+                _loggingService.LogError(ex, "Error deleting reminder {ErrorIdentifier} by user {UserId}", errorIdentifier, userId);
+                return false;
+            }
+        }
+
         public async Task<bool> DeleteScheduleAsync(int scheduleId, string userId)
         {
             try

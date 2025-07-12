@@ -43,17 +43,7 @@ public class HomeController : Controller
                 }
             }
 
-            // Add system status for debugging
-            ViewBag.SystemStatus = new
-            {
-                DatabaseConnected = await TestDatabaseConnectionAsync(),
-                EmailConfigured = !string.IsNullOrEmpty(_configuration["Email:SmtpServer"]),
-                Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown",
-                AppUrl = _configuration["AppUrl"]
-            };
-
-            ViewBag.Reminders = reminders;
-            return View();
+            return View(reminders);
         }
         catch (Exception ex)
         {
@@ -126,6 +116,18 @@ public class HomeController : Controller
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+
+    [HttpGet]
+    public IActionResult CreateReminder()
+    {
+        var model = new Reminder.Models.DBEntities.ReminderViewModel
+        {
+            Name = string.Empty,
+            Message = string.Empty,
+            Schedules = new List<Reminder.Models.DBEntities.ScheduleViewModel> { new Reminder.Models.DBEntities.ScheduleViewModel() }
+        };
+        return View("EditReminder", model);
     }
 
     [HttpPost]

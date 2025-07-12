@@ -7,50 +7,55 @@
 <div class="container-fluid">
     <div class="row justify-content-center align-items-center min-vh-100">
         <div class="col-md-6 col-lg-4">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-primary text-white text-center py-4">
-                    <h3 class="mb-0">
-                        <i class="fas fa-sign-in-alt me-2"></i>Welcome Back
-                    </h3>
-                    <p class="mb-0 mt-2">Sign in to your account</p>
+            <div class="card fade-in">
+                <div class="card-header">
+                    <div class="text-center">
+                        <div class="auth-icon mb-3">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </div>
+                        <h3 class="mb-2">Welcome Back</h3>
+                        <p class="mb-0 text-muted">Sign in to your account</p>
+                    </div>
                 </div>
-                <div class="card-body p-4">
+                <div class="card-body p-5">
                     @if (TempData["SuccessMessage"] != null)
                     {
                         <div class="alert alert-success" role="alert">
-                            <i class="fas fa-check-circle me-2"></i>
-                            @TempData["SuccessMessage"]
+                            <i class="fas fa-check-circle"></i>
+                            <span>@TempData["SuccessMessage"]</span>
                         </div>
                     }
                     
                     @if (TempData["ErrorMessage"] != null)
                     {
                         <div class="alert alert-danger" role="alert">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            @TempData["ErrorMessage"]
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>@TempData["ErrorMessage"]</span>
                         </div>
                     }
                     
                     @if (!ViewData.ModelState.IsValid)
                     {
                         <div class="alert alert-danger" role="alert">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Login failed!</strong> Please check your credentials and try again.
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span><strong>Login failed!</strong> Please check your credentials and try again.</span>
                         </div>
                     }
 
                     <form asp-action="Login" asp-controller="Account" method="post">
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label asp-for="Email" class="form-label">
-                                <i class="fas fa-envelope me-2"></i>Email Address
+                                <i class="fas fa-envelope me-2"></i>
+                                <span>Email Address</span>
                             </label>
                             <input asp-for="Email" type="email" class="form-control" placeholder="Enter your email" required>
                             <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label asp-for="Password" class="form-label">
-                                <i class="fas fa-lock me-2"></i>Password
+                                <i class="fas fa-lock me-2"></i>
+                                <span>Password</span>
                             </label>
                             <div class="input-group">
                                 <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" required>
@@ -61,31 +66,35 @@
                             <span asp-validation-for="Password" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-3 form-check">
+                        <div class="mb-4 form-check">
                             <input type="checkbox" class="form-check-input" id="rememberMe" name="RememberMe">
                             <label class="form-check-label" for="rememberMe">
-                                <i class="fas fa-check-square me-1"></i>Remember me
+                                <i class="fas fa-check-square me-2"></i>
+                                <span>Remember me</span>
                             </label>
                         </div>
 
-                        <div class="d-grid mb-3">
+                        <div class="d-grid mb-4">
                             <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                <span>Sign In</span>
                             </button>
                         </div>
 
                         <div class="text-center">
                             <a asp-action="ForgotPassword" class="text-decoration-none">
-                                <i class="fas fa-key me-1"></i>Forgot Password?
+                                <i class="fas fa-key me-1"></i>
+                                <span>Forgot Password?</span>
                             </a>
                         </div>
                     </form>
                 </div>
-                <div class="card-footer text-center py-3">
+                <div class="card-footer text-center py-4">
                     <p class="mb-0">
                         Don't have an account? 
                         <a asp-action="Register" class="text-decoration-none fw-bold">
-                            <i class="fas fa-user-plus me-1"></i>Sign Up
+                            <i class="fas fa-user-plus me-1"></i>
+                            <span>Sign Up</span>
                         </a>
                     </p>
                 </div>
@@ -93,6 +102,49 @@
         </div>
     </div>
 </div>
+
+@section Styles {
+    <style>
+        .auth-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            color: white;
+            font-size: var(--font-size-2xl);
+        }
+        
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .form-check-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+        }
+        
+        .input-group .btn {
+            border-left: none;
+        }
+        
+        .input-group .form-control {
+            border-right: none;
+        }
+        
+        .input-group .form-control:focus {
+            border-right: none;
+        }
+        
+        .input-group .btn:focus {
+            box-shadow: none;
+        }
+    </style>
+}
 
 @section Scripts {
     <script>

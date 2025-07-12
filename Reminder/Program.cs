@@ -157,6 +157,15 @@ try
     builder.Services.AddScoped<IEmailService, EmailService>();
     builder.Services.AddScoped<ISmsService, SmsService>();
     builder.Services.AddScoped<IAdminService, AdminService>();
+    builder.Services.AddScoped<IChatService, ChatService>(provider =>
+        new ChatService(
+            provider.GetRequiredService<IReminderService>(),
+            provider.GetRequiredService<ILoggingService>(),
+            provider.GetRequiredService<HttpClient>(),
+            provider.GetRequiredService<SchedulerDbContext>()
+        )
+    );
+    builder.Services.AddHttpClient();
 
     var app = builder.Build();
 
