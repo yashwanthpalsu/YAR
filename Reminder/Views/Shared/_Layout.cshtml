@@ -60,7 +60,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Chat" asp-action="Index">
-                                <i class="fas fa-robot"></i>
+                                <i class="fas fa-bolt"></i>
                                 <span>AI Assistant</span>
                             </a>
                         </li>
@@ -142,24 +142,13 @@
         @RenderBody()
     </div>
 
-    <!-- Footer -->
-    <footer class="footer mt-auto">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <i class="fas fa-bell"></i>
-                    <span>Reminder</span>
-                </div>
-                <div class="footer-links">
-                    <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    <a href="#" class="ms-3">Terms</a>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 Reminder. Made with ❤️ for productivity.</p>
-            </div>
-        </div>
-    </footer>
+    <!-- Bottom Navigation Bar (Mobile Only) -->
+    <nav class="bottom-nav d-md-none">
+        <a href="/" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="/Home/ManageReminders" class="nav-item"><i class="fas fa-list"></i><span>Reminders</span></a>
+        <a href="/Chat" class="nav-item"><i class="fas fa-bolt"></i><span>AI</span></a>
+        <a href="/Account/Profile" class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
+    </nav>
 
     <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

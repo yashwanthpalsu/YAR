@@ -32,6 +32,7 @@ namespace Reminder.Services
             _emailService = emailService;
             _smsService = smsService;
             _loggingService = loggingService;
+            _roleManager = roleManager;
             _context = context;
         }
 

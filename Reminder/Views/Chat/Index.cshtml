@@ -13,7 +13,7 @@
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">
-                            <i class="fas fa-robot"></i>
+                            <i class="fas fa-bolt"></i>
                             <span>AI Assistant</span>
                         </h5>
                         <div class="header-actions">
@@ -36,7 +36,7 @@
                         {
                             <div class="text-center text-muted mt-5">
                                 <div class="ai-welcome">
-                                    <i class="fas fa-robot fa-4x mb-4 text-primary"></i>
+                                    <i class="fas fa-bolt fa-4x mb-4 text-primary"></i>
                                     <h4>Welcome to your AI Assistant!</h4>
                                     <p class="mb-4">I can help you manage your reminders. Try asking:</p>
                                     <div class="chat-suggestions">
@@ -60,7 +60,7 @@
                                     <div class="message-content">
                                         <div class="message-header">
                                             <div class="avatar-sm">
-                                                <i class="fas @(message.IsUserMessage ? "fa-user" : "fa-robot")"></i>
+                                                <i class="fas @(message.IsUserMessage ? "fa-user" : "fa-bolt")"></i>
                                             </div>
                                             <div class="message-sender">@(message.IsUserMessage ? "You" : "AI Assistant")</div>
                                         </div>
@@ -224,7 +224,7 @@
         // Initialize speech recognition
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            recognition.continuous = false;
+            recognition.continuous = true;
             recognition.interimResults = false;
             recognition.lang = 'en-US';
             
@@ -312,7 +312,7 @@
                 <div class="message-content">
                     <div class="message-header">
                         <div class="avatar-sm">
-                            <i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i>
+                            <i class="fas ${isUser ? 'fa-user' : 'fa-bolt'}"></i>
                         </div>
                         <div class="message-sender">${isUser ? 'You' : 'AI Assistant'}</div>
                     </div>

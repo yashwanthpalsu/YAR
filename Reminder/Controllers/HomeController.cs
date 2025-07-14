@@ -127,6 +127,7 @@ public class HomeController : Controller
             Message = string.Empty,
             Schedules = new List<Reminder.Models.DBEntities.ScheduleViewModel> { new Reminder.Models.DBEntities.ScheduleViewModel() }
         };
+        ViewData["IsCreate"] = true;
         return View("EditReminder", model);
     }
 
@@ -140,7 +141,7 @@ public class HomeController : Controller
             return RedirectToAction("Login", "Account");
         }
 
-        // Set the UserId from the current user
+        // Set the UserId from the current user BEFORE validation
         model.UserId = currentUser.Id;
 
         // Clear validation errors for Reminder navigation properties in schedules
@@ -165,9 +166,9 @@ public class HomeController : Controller
             // Log validation errors for debugging
             var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
             _logger.LogWarning("Model validation failed: {Errors}", string.Join(", ", errors));
-            
-            // Return view with validation errors
-            return View("Index", model);
+            // Instead of returning the Index view with a single model, redirect to Index so the model is always a list
+            ViewData["IsCreate"] = true;
+            return View("EditReminder", model);
         }
 
         try
@@ -183,14 +184,16 @@ public class HomeController : Controller
             {
                 _logger.LogError("Failed to create reminder for user {UserId}", model.UserId);
                 ModelState.AddModelError("", "Failed to create reminder. Please try again.");
-                return View("Index", model);
+                TempData["ErrorMessage"] = "Failed to create reminder. Please try again.";
+                return RedirectToAction("Index");
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating reminder for user {UserId}", model.UserId);
             ModelState.AddModelError("", "An error occurred while creating the reminder. Please try again.");
-            return View("Index", model);
+            TempData["ErrorMessage"] = "An error occurred while creating the reminder. Please try again.";
+            return RedirectToAction("Index");
         }
     }
 
