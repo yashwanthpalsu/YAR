@@ -22,6 +22,8 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Reminder.styles.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
+    <!-- Custom Favicon -->
+    <link rel="icon" type="image/png" href="~/img/bolt-icon.png" />
 </head>
 @{
     var useGradientBg = ViewData["UseGradientBg"] as bool? ?? false;

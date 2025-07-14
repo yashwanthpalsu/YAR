@@ -4,6 +4,7 @@ using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
 using MimeKit.Text;
+using Reminder.Models;
 
 namespace Reminder.Services
 {
@@ -11,11 +12,13 @@ namespace Reminder.Services
     {
         private readonly IConfiguration _configuration;
         private readonly ILoggingService _loggingService;
+        private readonly SchedulerDbContext _context;
 
-        public EmailService(IConfiguration configuration, ILoggingService loggingService)
+        public EmailService(IConfiguration configuration, ILoggingService loggingService, SchedulerDbContext context)
         {
             _configuration = configuration;
             _loggingService = loggingService;
+            _context = context;
         }
 
         public async Task<bool> SendEmailVerificationAsync(string email, string name, string token)
@@ -72,13 +75,12 @@ namespace Reminder.Services
             }
         }
 
-        public async Task<bool> SendReminderEmailAsync(string email, string name, string reminderMessage, DateTime reminderTime)
+        public async Task<bool> SendReminderEmailAsync(string email, string name, string reminderMessage, DateTime reminderTime, int scheduleId)
         {
             try
             {
                 var subject = "Reminder - Reminder App";
                 var formattedTime = reminderTime.ToString("MMMM dd, yyyy 'at' h:mm tt");
-                
                 var body = $@"
                     <h2>Reminder</h2>
                     <p>Hi {name},</p>
@@ -90,7 +92,17 @@ namespace Reminder.Services
                     <p>Thank you for using Reminder App!</p>
                     <br>
                     <p>Best regards,<br>Reminder App Team</p>";
-                return await SendEmailAsync(email, subject, body);
+                var sendResult = await SendEmailAsync(email, subject, body);
+                if (sendResult)
+                {
+                    var schedule = await _context.Schedules.FindAsync(scheduleId);
+                    if (schedule != null)
+                    {
+                        schedule.IsReminderSent = true;
+                        await _context.SaveChangesAsync();
+                    }
+                }
+                return sendResult;
             }
             catch (Exception ex)
             {

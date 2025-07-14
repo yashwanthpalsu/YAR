@@ -49,7 +49,7 @@
                                         <div class="stats-icon mb-3">
                                             <i class="fas fa-check-circle fa-2x"></i>
                                         </div>
-                                        <h3 class="mb-2">@Model.Count(r => r.Schedules.Any(s => s.IsReminderSent))</h3>
+                                        <h3 class="mb-2">@Model.Count(r => r.Schedules.All(s => s.IsReminderSent) && r.Schedules.Count > 0)</h3>
                                         <p class="mb-0 opacity-75">Completed</p>
                                     </div>
                                 </div>
