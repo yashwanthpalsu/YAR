@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 using Twilio.Types;
+using Reminder.Models;
 
 namespace Reminder.Services
 {
@@ -9,11 +10,13 @@ namespace Reminder.Services
     {
         private readonly IConfiguration _configuration;
         private readonly ILoggingService _loggingService;
+        private readonly SchedulerDbContext _context;
 
-        public SmsService(IConfiguration configuration, ILoggingService loggingService)
+        public SmsService(IConfiguration configuration, ILoggingService loggingService, SchedulerDbContext context)
         {
             _configuration = configuration;
             _loggingService = loggingService;
+            _context = context;
             
             // Initialize Twilio
             TwilioClient.Init(
@@ -43,7 +46,7 @@ namespace Reminder.Services
             }
         }
 
-        public async Task<bool> SendReminderSmsAsync(string phoneNumber, string reminderMessage, DateTime reminderTime)
+        public async Task<bool> SendReminderSmsAsync(string phoneNumber, string reminderMessage, DateTime reminderTime, int scheduleId)
         {
             try
             {
@@ -55,8 +58,16 @@ namespace Reminder.Services
                     from: new PhoneNumber(_configuration["Twilio:FromPhoneNumber"]),
                     to: new PhoneNumber(phoneNumber)
                 );
-
-                return true;
+                if (messageResource != null)
+                {
+                    var schedule = await _context.Schedules.FindAsync(scheduleId);
+                    if (schedule != null)
+                    {
+                        schedule.IsReminderSent = true;
+                        await _context.SaveChangesAsync();
+                    }
+                }
+                return messageResource != null;
             }
             catch (Exception ex)
             {

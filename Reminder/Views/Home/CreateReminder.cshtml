@@ -1,6 +1,6 @@
 @model Reminder.Models.DBEntities.ReminderViewModel
 @{
-    ViewData["Title"] = "Edit Reminder - YAR";
+    ViewData["Title"] = "Create Reminder - YAR";
     Layout = "_Layout";
     var reminderImportances = new List<SelectListItem>
     {
@@ -15,22 +15,22 @@
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
             <div class="card shadow-lg border-0">
-                <div class="card-header bg-warning text-white text-center py-4">
+                <div class="card-header bg-primary text-white text-center py-4">
                     <h3 class="mb-0">
-                        <i class="fas fa-edit me-2"></i>Edit Reminder (YAR)
+                        <i class="fas fa-plus me-2"></i>Create Reminder (YAR)
                     </h3>
-                    <p class="mb-0 mt-2">Update your reminder details in YAR (Yet Another Reminder)</p>
+                    <p class="mb-0 mt-2">Add a new reminder with YAR (Yet Another Reminder)</p>
                 </div>
                 <div class="card-body p-4">
                     @if (!ViewData.ModelState.IsValid)
                     {
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Update failed!</strong> Please check the errors below.
+                            <strong>Creation failed!</strong> Please check the errors below.
                         </div>
                     }
 
-                    <form method="post" id="editReminderForm">
+                    <form method="post" id="createReminderForm">
                         <input type="hidden" asp-for="ReminderId" />
                         <input type="hidden" asp-for="UserId" />
                         
@@ -119,8 +119,8 @@
                             <a asp-action="ManageReminders" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Back to Reminders
                             </a>
-                            <button type="submit" class="btn btn-warning">
-                                <i class="fas fa-save me-2"></i>Update Reminder
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Create Reminder
                             </button>
                         </div>
                     </form>
@@ -160,7 +160,7 @@
         });
 
         // Client-side validation for at least one mode and one date
-        $('#editReminderForm').on('submit', function (e) {
+        $('#createReminderForm').on('submit', function (e) {
             let valid = true;
             // Validate at least one mode
             if (

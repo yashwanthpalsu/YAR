@@ -12,7 +12,7 @@
             <div class="card fade-in">
                 <div class="card-header">
                     <h5 class="mb-0">
-                        <i class="fas fa-tachometer-alt"></i>
+                        <i class="fas fa-bolt"></i>
                         <span>Dashboard</span>
                     </h5>
                 </div>
@@ -49,7 +49,7 @@
                                         <div class="stats-icon mb-3">
                                             <i class="fas fa-check-circle fa-2x"></i>
                                         </div>
-                                        <h3 class="mb-2">@Model.Count(r => r.Schedules.Any(s => s.IsReminderSent))</h3>
+                                        <h3 class="mb-2">@Model.Count(r => r.Schedules.All(s => s.IsReminderSent) && r.Schedules.Count > 0)</h3>
                                         <p class="mb-0 opacity-75">Completed</p>
                                     </div>
                                 </div>
@@ -163,9 +163,9 @@
                         <div class="text-center py-5">
                             <div class="welcome-state">
                                 <i class="fas fa-user-lock fa-4x mb-4 text-muted"></i>
-                                <h4>Welcome to Reminder</h4>
-                                <p class="mb-4">Please log in to manage your reminders and get started with our AI assistant.</p>
-                                <div class="d-flex justify-content-center gap-3">
+                                <h4>Welcome to YAR</h4>
+                                <p class="mb-4">Please log in to manage your reminders and get started with YAR, Yet Another Reminder.</p>
+                                <div class="d-flex justify-content-center gap-3 flex-wrap mt-3">
                                     <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg">
                                         <i class="fas fa-sign-in-alt me-2"></i>
                                         <span>Login</span>
@@ -187,7 +187,7 @@
             <div class="card h-100 fade-in">
                 <div class="card-header">
                     <h5 class="mb-0">
-                        <i class="fas fa-robot"></i>
+                        <i class="fas fa-bolt"></i>
                         <span>AI Assistant</span>
                     </h5>
                 </div>
@@ -195,7 +195,7 @@
                     <div class="chat-messages flex-grow-1" id="chatMessages">
                         <div class="text-center text-muted">
                             <div class="ai-welcome">
-                                <i class="fas fa-robot fa-3x mb-3 text-primary"></i>
+                                <i class="fas fa-bolt fa-3x mb-3 text-primary"></i>
                                 <h6>Ask me to help with your reminders!</h6>
                                 <div class="chat-suggestions mt-3">
                                     <p class="small mb-2"><strong>Try:</strong></p>

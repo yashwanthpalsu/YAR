@@ -66,12 +66,12 @@ namespace Reminder.Services
                     var scheduledDateTime = schedule.Date.Date + schedule.Time;
                     if (reminder.IsEmailModeSelected && !string.IsNullOrEmpty(user.Email))
                     {
-                        var emailJobId = BackgroundJob.Schedule(() => _emailService.SendReminderEmailAsync(user.Email, user.FullName, reminder.Message, scheduledDateTime), scheduledDateTime - DateTime.Now);
+                        var emailJobId = BackgroundJob.Schedule(() => _emailService.SendReminderEmailAsync(user.Email, user.FullName, reminder.Message, scheduledDateTime, schedule.ScheduleId), scheduledDateTime - DateTime.Now);
                         schedule.EmailJobId = emailJobId;
                     }
                     if (reminder.IsTextModeSelected && !string.IsNullOrEmpty(user.PhoneNumber))
                     {
-                        var smsJobId = BackgroundJob.Schedule(() => _smsService.SendReminderSmsAsync(user.PhoneNumber, reminder.Message, scheduledDateTime), scheduledDateTime - DateTime.Now);
+                        var smsJobId = BackgroundJob.Schedule(() => _smsService.SendReminderSmsAsync(user.PhoneNumber, reminder.Message, scheduledDateTime, schedule.ScheduleId), scheduledDateTime - DateTime.Now);
                         schedule.SmsJobId = smsJobId;
                     }
                     // WhatsApp: Use Twilio for WhatsApp if configured (optional, example below)
@@ -211,12 +211,12 @@ namespace Reminder.Services
                         var scheduledDateTime = schedule.Date.Date + schedule.Time;
                         if (reminder.IsEmailModeSelected && !string.IsNullOrEmpty(user.Email))
                         {
-                            var emailJobId = BackgroundJob.Schedule(() => _emailService.SendReminderEmailAsync(user.Email, user.FullName, reminder.Message, scheduledDateTime), scheduledDateTime - DateTime.Now);
+                            var emailJobId = BackgroundJob.Schedule(() => _emailService.SendReminderEmailAsync(user.Email, user.FullName, reminder.Message, scheduledDateTime, schedule.ScheduleId), scheduledDateTime - DateTime.Now);
                             schedule.EmailJobId = emailJobId;
                         }
                         if (reminder.IsTextModeSelected && !string.IsNullOrEmpty(user.PhoneNumber))
                         {
-                            var smsJobId = BackgroundJob.Schedule(() => _smsService.SendReminderSmsAsync(user.PhoneNumber, reminder.Message, scheduledDateTime), scheduledDateTime - DateTime.Now);
+                            var smsJobId = BackgroundJob.Schedule(() => _smsService.SendReminderSmsAsync(user.PhoneNumber, reminder.Message, scheduledDateTime, schedule.ScheduleId), scheduledDateTime - DateTime.Now);
                             schedule.SmsJobId = smsJobId;
                         }
                     }

@@ -11,6 +11,7 @@ namespace Reminder.Models.DBEntities
         public int ReminderId { get; set; }
         
         // This will be set automatically from the current user
+        [Required]
         public string UserId { get; set; } = string.Empty;
 
         [Column(TypeName = "varchar(250)")]
